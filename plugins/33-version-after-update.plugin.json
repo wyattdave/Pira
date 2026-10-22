@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraVersionAfterupdateVersionsUpdatePostoperation",
+  "displayName": "Pira · Version · After update — Versions · Update · Post-operation",
+  "description": "Phase 4. Leads only; project immutable; unique name; dates in order; released needs a release date.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_version",
+    "message": "Update",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_version",
+    "wd_project",
+    "wd_projectmember",
+    "systemuser"
+  ],
+  "formula": "// Phase 4. Leads only; a version stays in its project, keeps a unique name and valid dates, and needs a release date once released.\nWith(\n    { saved: LookUp(wd_version, wd_versionid = NewRecord.wd_versionid) },\n    With(\n        { thisProject: LookUp(wd_project, wd_projectid = OldRecord.wd_Project.wd_projectid) },\n        If(\n            NewRecord.wd_Project.wd_projectid <> OldRecord.wd_Project.wd_projectid,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_VERSION] A version can't move to another project.\" }),\n            thisProject.wd_state = wd_project_new_wd_project_wd_state.'100000001',\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ARCHIVED] \" & thisProject.wd_key & \" is archived. Restore it before changing versions.\" }),\n            IsBlank(Trim(saved.wd_name)),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_VERSION] Version name is required.\" }),\n            !IsBlank(saved.wd_startdate) && !IsBlank(saved.wd_releasedate) && saved.wd_releasedate < saved.wd_startdate,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_VERSION] The release date can't be before the start date.\" }),\n            saved.wd_versionstate = wd_version_new_wd_version_wd_versionstate.'100000001' && IsBlank(saved.wd_releasedate),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_VERSION] Released versions need a release date.\" }),\n            CountRows(Filter(Filter(wd_version, wd_Project.wd_projectid = thisProject.wd_projectid),\n                Lower(Trim(wd_name)) = Lower(Trim(saved.wd_name)))) > 1,\n                Error({ Kind: ErrorKind.Validation, Message: \"[VERSION_NAME_TAKEN] Another version in \" & thisProject.wd_key & \" already uses that name.\" }),\n            IsBlank(LookUp(wd_projectmember,\n                wd_Project.wd_projectid = thisProject.wd_projectid &&\n                wd_User.systemuserid = saved.modifiedby.systemuserid &&\n                wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000' &&\n                wd_projectrole = wd_projectmember_new_wd_projectmember_wd_projectrole.'100000000')),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only project leads can manage versions.\" })\n        )\n    )\n)"
+}

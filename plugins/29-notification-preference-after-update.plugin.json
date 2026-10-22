@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraNotificationPreferenceAfterupdateNotificationPreferencesUpdatePostoperation",
+  "displayName": "Pira · Notification Preference · After update — Notification Preferences · Update · Post-operation",
+  "description": "Phase 3. The person can't change.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_notificationpreference",
+    "message": "Update",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_notificationpreference",
+    "systemuser"
+  ],
+  "formula": "If(\n    NewRecord.wd_User.systemuserid <> OldRecord.wd_User.systemuserid,\n        Error({ Kind: ErrorKind.Validation, Message: \"[PERMISSION_DENIED] Preferences can't move to another person.\" })\n)"
+}

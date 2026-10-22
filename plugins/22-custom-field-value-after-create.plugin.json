@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraCustomFieldValueAftercreateCustomFieldValuesCreatePostoperation",
+  "displayName": "Pira · Custom Field Value · After create — Custom Field Values · Create · Post-operation",
+  "description": "Phase 3. Same project; field active; issue not archived; value matches the field type and issue type; creator is a lead/contributor.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_customfieldvalue",
+    "message": "Create",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_customfieldvalue",
+    "wd_customfield",
+    "wd_issue",
+    "wd_projectmember",
+    "wd_project",
+    "systemuser"
+  ],
+  "formula": "// Phase 3. Only the column for the field's type may hold a value, choice values must be one of the options (one per line),\n// and the field must apply to the issue's type. Yes/No columns default to No, so Boolean Value isn't checked.\nWith(\n    { saved: LookUp(wd_customfieldvalue, wd_customfieldvalueid = NewRecord.wd_customfieldvalueid) },\n    With(\n        {\n            thisField: LookUp(wd_customfield, wd_customfieldid = saved.wd_CustomField.wd_customfieldid),\n            thisIssue: LookUp(wd_issue, wd_issueid = saved.wd_Issue.wd_issueid),\n            hasValue: !IsBlank(saved.wd_textvalue) || !IsBlank(saved.wd_numbervalue) || !IsBlank(saved.wd_datevalue)\n        },\n        If(\n            IsBlank(thisField) || IsBlank(thisIssue) || thisField.wd_Project.wd_projectid <> thisIssue.wd_Project.wd_projectid,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_CUSTOM_FIELD_VALUE] The field and the issue must belong to the same project.\" }),\n            thisField.wd_active = wd_customfield_new_wd_customfield_wd_active.'0',\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_CUSTOM_FIELD_VALUE] \" & thisField.wd_name & \" is retired.\" }),\n            thisIssue.wd_archived = wd_issue_new_wd_issue_wd_archived.'1',\n                Error({ Kind: ErrorKind.Validation, Message: \"[ISSUE_ARCHIVED] \" & thisIssue.wd_issuekey & \" is archived and read-only.\" }),\n            Switch(thisField.wd_fieldtype,\n                wd_customfield_new_wd_customfield_wd_fieldtype.'100000000', !IsBlank(saved.wd_numbervalue) || !IsBlank(saved.wd_datevalue) || Len(saved.wd_textvalue) > 400,\n                wd_customfield_new_wd_customfield_wd_fieldtype.'100000001', !IsBlank(saved.wd_textvalue) || !IsBlank(saved.wd_datevalue),\n                wd_customfield_new_wd_customfield_wd_fieldtype.'100000002', !IsBlank(saved.wd_textvalue) || !IsBlank(saved.wd_numbervalue),\n                wd_customfield_new_wd_customfield_wd_fieldtype.'100000003', hasValue,\n                !IsBlank(saved.wd_numbervalue) || !IsBlank(saved.wd_datevalue) ||\n                    (!IsBlank(saved.wd_textvalue) && Find(Char(10) & saved.wd_textvalue & Char(10), Char(10) & thisField.wd_options & Char(10)) = 0)\n            ),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_CUSTOM_FIELD_VALUE] That value doesn't match the \" & thisField.wd_name & \" field type.\" }),\n            hasValue && !IsBlank(thisField.wd_issuetypes) &&\n                Find(\",\" & Text(Switch(thisIssue.wd_issuetype,\n                    wd_issue_new_wd_issue_wd_issuetype.'100000000', 100000000, wd_issue_new_wd_issue_wd_issuetype.'100000001', 100000001,\n                    wd_issue_new_wd_issue_wd_issuetype.'100000002', 100000002, 100000003), \"0\") & \",\", \",\" & thisField.wd_issuetypes & \",\") = 0,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_CUSTOM_FIELD_VALUE] \" & thisField.wd_name & \" isn't used for this issue type.\" }),\n            IsBlank(LookUp(wd_projectmember,\n                wd_Project.wd_projectid = thisIssue.wd_Project.wd_projectid &&\n                wd_User.systemuserid = saved.createdby.systemuserid &&\n                wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000' &&\n                wd_projectrole <> wd_projectmember_new_wd_projectmember_wd_projectrole.'100000002')),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] You must be a lead or contributor to change custom field values.\" })\n        )\n    )\n)"
+}

@@ -1,0 +1,713 @@
+{
+  "name": "wd_issue",
+  "title": "Issues",
+  "schema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "x-ms-dataverse-entity": true,
+      "x-ms-dataverse-entityset": "wd_issues",
+      "x-ms-dataverse-primary-id": "wd_issueid",
+      "x-ms-dataverse-primary-name": "wd_issuekey",
+      "properties": {
+        "createdby": {
+          "type": "string",
+          "title": "Created By",
+          "x-ms-dataverse-attribute": "createdby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "CreatedBy",
+          "x-ms-read-only": true
+        },
+        "createdbyname": {
+          "type": "string",
+          "title": "createdbyname",
+          "x-ms-dataverse-attribute": "createdbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "createdbyyominame": {
+          "type": "string",
+          "title": "createdbyyominame",
+          "x-ms-dataverse-attribute": "createdbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "createdon": {
+          "type": "string",
+          "title": "Created On",
+          "x-ms-dataverse-attribute": "createdon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "CreatedOn",
+          "x-ms-read-only": true
+        },
+        "createdonbehalfby": {
+          "type": "string",
+          "title": "Created By (Delegate)",
+          "x-ms-dataverse-attribute": "createdonbehalfby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "CreatedOnBehalfBy",
+          "x-ms-read-only": true
+        },
+        "createdonbehalfbyname": {
+          "type": "string",
+          "title": "createdonbehalfbyname",
+          "x-ms-dataverse-attribute": "createdonbehalfbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedOnBehalfByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "createdonbehalfbyyominame": {
+          "type": "string",
+          "title": "createdonbehalfbyyominame",
+          "x-ms-dataverse-attribute": "createdonbehalfbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedOnBehalfByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "importsequencenumber": {
+          "type": "string",
+          "title": "Import Sequence Number",
+          "x-ms-dataverse-attribute": "importsequencenumber",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "ImportSequenceNumber"
+        },
+        "modifiedby": {
+          "type": "string",
+          "title": "Modified By",
+          "x-ms-dataverse-attribute": "modifiedby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "ModifiedBy",
+          "x-ms-read-only": true
+        },
+        "modifiedbyname": {
+          "type": "string",
+          "title": "modifiedbyname",
+          "x-ms-dataverse-attribute": "modifiedbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "modifiedbyyominame": {
+          "type": "string",
+          "title": "modifiedbyyominame",
+          "x-ms-dataverse-attribute": "modifiedbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "modifiedon": {
+          "type": "string",
+          "title": "Modified On",
+          "x-ms-dataverse-attribute": "modifiedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "ModifiedOn",
+          "x-ms-read-only": true
+        },
+        "modifiedonbehalfby": {
+          "type": "string",
+          "title": "Modified By (Delegate)",
+          "x-ms-dataverse-attribute": "modifiedonbehalfby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "ModifiedOnBehalfBy",
+          "x-ms-read-only": true
+        },
+        "modifiedonbehalfbyname": {
+          "type": "string",
+          "title": "modifiedonbehalfbyname",
+          "x-ms-dataverse-attribute": "modifiedonbehalfbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedOnBehalfByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "modifiedonbehalfbyyominame": {
+          "type": "string",
+          "title": "modifiedonbehalfbyyominame",
+          "x-ms-dataverse-attribute": "modifiedonbehalfbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedOnBehalfByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "overriddencreatedon": {
+          "type": "string",
+          "title": "Record Created On",
+          "x-ms-dataverse-attribute": "overriddencreatedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "OverriddenCreatedOn"
+        },
+        "ownerid": {
+          "type": "string",
+          "title": "Owner",
+          "x-ms-dataverse-attribute": "ownerid",
+          "x-ms-dataverse-type": "OwnerType",
+          "x-ms-schema-name": "OwnerId",
+          "required": true
+        },
+        "owneridname": {
+          "type": "string",
+          "title": "owneridname",
+          "x-ms-dataverse-attribute": "owneridname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwnerIdName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owneridtype": {
+          "type": "string",
+          "title": "owneridtype",
+          "x-ms-dataverse-attribute": "owneridtype",
+          "x-ms-dataverse-type": "EntityNameType",
+          "x-ms-schema-name": "OwnerIdType",
+          "required": true
+        },
+        "owneridyominame": {
+          "type": "string",
+          "title": "owneridyominame",
+          "x-ms-dataverse-attribute": "owneridyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwnerIdYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owningbusinessunit": {
+          "type": "string",
+          "title": "Owning Business Unit",
+          "x-ms-dataverse-attribute": "owningbusinessunit",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningBusinessUnit"
+        },
+        "owningbusinessunitname": {
+          "type": "string",
+          "title": "owningbusinessunitname",
+          "x-ms-dataverse-attribute": "owningbusinessunitname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwningBusinessUnitName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owningteam": {
+          "type": "string",
+          "title": "Owning Team",
+          "x-ms-dataverse-attribute": "owningteam",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningTeam",
+          "x-ms-read-only": true
+        },
+        "owninguser": {
+          "type": "string",
+          "title": "Owning User",
+          "x-ms-dataverse-attribute": "owninguser",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningUser",
+          "x-ms-read-only": true
+        },
+        "statecode": {
+          "type": "string",
+          "title": "Status",
+          "x-ms-dataverse-attribute": "statecode",
+          "x-ms-dataverse-type": "StateType",
+          "x-ms-schema-name": "statecode",
+          "required": true,
+          "enum": [
+            "Active",
+            "Inactive"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "6a8a85e8-6dc8-f111-aaad-000d3a8bf073",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Status",
+          "x-ms-optionSetType": "State"
+        },
+        "statecodename": {
+          "type": "string",
+          "title": "statecodename",
+          "x-ms-dataverse-attribute": "statecodename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "statecodeName",
+          "x-ms-read-only": true
+        },
+        "statuscode": {
+          "type": "string",
+          "title": "Status Reason",
+          "x-ms-dataverse-attribute": "statuscode",
+          "x-ms-dataverse-type": "StatusType",
+          "x-ms-schema-name": "statuscode",
+          "enum": [
+            "Active",
+            "Inactive"
+          ],
+          "x-ms-enum-values": [
+            1,
+            2
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "748a85e8-6dc8-f111-aaad-000d3a8bf073",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Status Reason",
+          "x-ms-optionSetType": "Status"
+        },
+        "statuscodename": {
+          "type": "string",
+          "title": "statuscodename",
+          "x-ms-dataverse-attribute": "statuscodename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "statuscodeName",
+          "x-ms-read-only": true
+        },
+        "timezoneruleversionnumber": {
+          "type": "string",
+          "title": "Time Zone Rule Version Number",
+          "x-ms-dataverse-attribute": "timezoneruleversionnumber",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "TimeZoneRuleVersionNumber"
+        },
+        "utcconversiontimezonecode": {
+          "type": "string",
+          "title": "UTC Conversion Time Zone Code",
+          "x-ms-dataverse-attribute": "utcconversiontimezonecode",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "UTCConversionTimeZoneCode"
+        },
+        "versionnumber": {
+          "type": "string",
+          "title": "Version Number",
+          "x-ms-dataverse-attribute": "versionnumber",
+          "x-ms-dataverse-type": "BigIntType",
+          "x-ms-schema-name": "VersionNumber",
+          "x-ms-read-only": true
+        },
+        "wd_archived": {
+          "type": "string",
+          "title": "Archived",
+          "x-ms-dataverse-attribute": "wd_archived",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "wd_Archived",
+          "enum": [
+            "No",
+            "Yes"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "6a25c737-6ec8-f111-aaad-000d3a9a6fde",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Archived",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "wd_archivedname": {
+          "type": "string",
+          "title": "wd_archivedname",
+          "x-ms-dataverse-attribute": "wd_archivedname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "wd_archivedName",
+          "x-ms-read-only": true
+        },
+        "wd_assignee": {
+          "type": "string",
+          "title": "Assignee",
+          "x-ms-dataverse-attribute": "wd_assignee",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "wd_Assignee"
+        },
+        "wd_assigneename": {
+          "type": "string",
+          "title": "wd_assigneename",
+          "x-ms-dataverse-attribute": "wd_assigneename",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_AssigneeName",
+          "x-ms-read-only": true,
+          "maxLength": 200
+        },
+        "wd_assigneeyominame": {
+          "type": "string",
+          "title": "wd_assigneeyominame",
+          "x-ms-dataverse-attribute": "wd_assigneeyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_AssigneeYomiName",
+          "x-ms-read-only": true,
+          "maxLength": 200
+        },
+        "wd_description": {
+          "type": "string",
+          "title": "Description",
+          "x-ms-dataverse-attribute": "wd_description",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "wd_Description",
+          "maxLength": 10000
+        },
+        "wd_duedate": {
+          "type": "string",
+          "title": "Due Date",
+          "x-ms-dataverse-attribute": "wd_duedate",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "wd_DueDate"
+        },
+        "wd_fixversion": {
+          "type": "string",
+          "title": "Fix Version",
+          "x-ms-dataverse-attribute": "wd_fixversion",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "wd_FixVersion"
+        },
+        "wd_fixversionname": {
+          "type": "string",
+          "title": "wd_fixversionname",
+          "x-ms-dataverse-attribute": "wd_fixversionname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_FixVersionName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "wd_issueid": {
+          "type": "string",
+          "title": "Issue",
+          "x-ms-dataverse-attribute": "wd_issueid",
+          "x-ms-dataverse-type": "UniqueidentifierType",
+          "x-ms-schema-name": "wd_IssueId",
+          "x-ms-dataverse-primary-id": true,
+          "required": true,
+          "x-ms-keyType": "primary"
+        },
+        "wd_issuekey": {
+          "type": "string",
+          "title": "Issue Key",
+          "x-ms-dataverse-attribute": "wd_issuekey",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_IssueKey",
+          "x-ms-dataverse-primary-name": true,
+          "maxLength": 20
+        },
+        "wd_issuesequence": {
+          "type": "string",
+          "title": "Issue Sequence",
+          "x-ms-dataverse-attribute": "wd_issuesequence",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "wd_IssueSequence"
+        },
+        "wd_issuetype": {
+          "type": "string",
+          "title": "Issue Type",
+          "x-ms-dataverse-attribute": "wd_issuetype",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "wd_IssueType",
+          "enum": [
+            "Task",
+            "Bug",
+            "Story",
+            "Epic"
+          ],
+          "x-ms-enum-values": [
+            100000000,
+            100000001,
+            100000002,
+            100000003
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "aa91e725-6ec8-f111-aaad-6045bdf0b217",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Issue Type",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "wd_issuetypename": {
+          "type": "string",
+          "title": "wd_issuetypename",
+          "x-ms-dataverse-attribute": "wd_issuetypename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "wd_issuetypeName",
+          "x-ms-read-only": true
+        },
+        "wd_originalestimate": {
+          "type": "string",
+          "title": "Original Estimate",
+          "x-ms-dataverse-attribute": "wd_originalestimate",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "wd_OriginalEstimate"
+        },
+        "wd_parentissue": {
+          "type": "string",
+          "title": "Parent Issue",
+          "x-ms-dataverse-attribute": "wd_parentissue",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "wd_ParentIssue"
+        },
+        "wd_parentissuename": {
+          "type": "string",
+          "title": "wd_parentissuename",
+          "x-ms-dataverse-attribute": "wd_parentissuename",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_ParentIssueName",
+          "x-ms-read-only": true,
+          "maxLength": 20
+        },
+        "wd_priority": {
+          "type": "string",
+          "title": "Priority",
+          "x-ms-dataverse-attribute": "wd_priority",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "wd_Priority",
+          "enum": [
+            "Lowest",
+            "Low",
+            "Medium",
+            "High",
+            "Highest"
+          ],
+          "x-ms-enum-values": [
+            100000000,
+            100000001,
+            100000002,
+            100000003,
+            100000004
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "a6f91e25-6ec8-f111-aaad-000d3a9a6fde",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Priority",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "wd_priorityname": {
+          "type": "string",
+          "title": "wd_priorityname",
+          "x-ms-dataverse-attribute": "wd_priorityname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "wd_priorityName",
+          "x-ms-read-only": true
+        },
+        "wd_project": {
+          "type": "string",
+          "title": "Project",
+          "x-ms-dataverse-attribute": "wd_project",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "wd_Project"
+        },
+        "wd_projectname": {
+          "type": "string",
+          "title": "wd_projectname",
+          "x-ms-dataverse-attribute": "wd_projectname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_ProjectName",
+          "x-ms-read-only": true,
+          "maxLength": 200
+        },
+        "wd_rank": {
+          "type": "string",
+          "title": "Rank",
+          "x-ms-dataverse-attribute": "wd_rank",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_Rank",
+          "maxLength": 64
+        },
+        "wd_remainingestimate": {
+          "type": "string",
+          "title": "Remaining Estimate",
+          "x-ms-dataverse-attribute": "wd_remainingestimate",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "wd_RemainingEstimate"
+        },
+        "wd_resolution": {
+          "type": "string",
+          "title": "Resolution",
+          "x-ms-dataverse-attribute": "wd_resolution",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "wd_Resolution",
+          "enum": [
+            "Done",
+            "Won't Do",
+            "Duplicate",
+            "Cannot Reproduce"
+          ],
+          "x-ms-enum-values": [
+            100000000,
+            100000001,
+            100000002,
+            100000003
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "92ce46d8-46c9-f111-aaad-000d3a8bf073",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Resolution",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "wd_resolutionname": {
+          "type": "string",
+          "title": "wd_resolutionname",
+          "x-ms-dataverse-attribute": "wd_resolutionname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "wd_resolutionName",
+          "x-ms-read-only": true
+        },
+        "wd_resolvedon": {
+          "type": "string",
+          "title": "Resolved On",
+          "x-ms-dataverse-attribute": "wd_resolvedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "wd_ResolvedOn"
+        },
+        "wd_solutionversion": {
+          "type": "string",
+          "title": "Solution Version",
+          "x-ms-dataverse-attribute": "wd_solutionversion",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_SolutionVersion",
+          "maxLength": 50
+        },
+        "wd_sprint": {
+          "type": "string",
+          "title": "Sprint",
+          "x-ms-dataverse-attribute": "wd_sprint",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "wd_Sprint"
+        },
+        "wd_sprintname": {
+          "type": "string",
+          "title": "wd_sprintname",
+          "x-ms-dataverse-attribute": "wd_sprintname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_SprintName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "wd_startedon": {
+          "type": "string",
+          "title": "Started On",
+          "x-ms-dataverse-attribute": "wd_startedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "wd_StartedOn"
+        },
+        "wd_status": {
+          "type": "string",
+          "title": "Status",
+          "x-ms-dataverse-attribute": "wd_status",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "wd_Status",
+          "enum": [
+            "To Do",
+            "In Progress",
+            "In Review",
+            "Done",
+            "Backlog",
+            "Blocked",
+            "In Testing",
+            "Closed"
+          ],
+          "x-ms-enum-values": [
+            100000000,
+            100000001,
+            100000002,
+            100000003,
+            100000004,
+            100000005,
+            100000006,
+            100000007
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "a0f91e25-6ec8-f111-aaad-000d3a9a6fde",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Status",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "wd_statusname": {
+          "type": "string",
+          "title": "wd_statusname",
+          "x-ms-dataverse-attribute": "wd_statusname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "wd_statusName",
+          "x-ms-read-only": true
+        },
+        "wd_storypoints": {
+          "type": "string",
+          "title": "Story Points",
+          "x-ms-dataverse-attribute": "wd_storypoints",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "wd_StoryPoints"
+        },
+        "wd_summary": {
+          "type": "string",
+          "title": "Summary",
+          "x-ms-dataverse-attribute": "wd_summary",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "wd_Summary",
+          "required": true,
+          "maxLength": 255
+        },
+        "wd_timespent": {
+          "type": "string",
+          "title": "Time Spent",
+          "x-ms-dataverse-attribute": "wd_timespent",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "wd_TimeSpent"
+        }
+      },
+      "required": [
+        "createdbyyominame",
+        "createdonbehalfbyyominame",
+        "modifiedbyyominame",
+        "modifiedonbehalfbyyominame",
+        "ownerid",
+        "owneridname",
+        "owneridtype",
+        "owneridyominame",
+        "owningbusinessunitname",
+        "statecode",
+        "wd_issueid",
+        "wd_summary"
+      ]
+    }
+  }
+}

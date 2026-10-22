@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraIssueBeforeupdatePhase5IssuesUpdatePreoperation",
+  "displayName": "Pira · Issue · Before update (Phase 5) — Issues · Update · Pre-operation",
+  "description": "Phase 5. Solution version stories only (cleared otherwise), numeric dotted format; history.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_issue",
+    "message": "Update",
+    "stage": "preOperation"
+  },
+  "tables": [
+    "wd_issue",
+    "wd_issuehistory"
+  ],
+  "formula": "// Phase 5. Solution Version belongs to stories only: it is cleared automatically when the issue isn't a story, must be up to\n// four numbers separated by dots, and changes are written to history in the same transaction.\nWith(\n    {\n        isStory: NewRecord.wd_issuetype = wd_issue_new_wd_issue_wd_issuetype.'100000002',\n        sv: Trim(NewRecord.wd_solutionversion),\n        k: OldRecord.wd_issuekey\n    },\n    If(\n        isStory && !IsBlank(sv) && !IsMatch(sv, \"\\d{1,9}(\\.\\d{1,9}){0,3}\"),\n            Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_SOLUTION_VERSION] Use numbers separated by dots, e.g. 1.0.0.2.\" }),\n        Set(NewRecord.wd_solutionversion, If(isStory && !IsBlank(sv), sv, Blank()));\n        If(If(isStory && !IsBlank(sv), sv, \"\") <> Coalesce(OldRecord.wd_solutionversion, \"\"),\n            Collect(wd_issuehistory, {\n                wd_name: Left(k & \" solutionVersion\", 100), wd_Issue: LookUp(wd_issue, wd_issueid = OldRecord.wd_issueid),\n                wd_eventtype: wd_issuehistory_new_wd_issuehistory_wd_eventtype.'100000001', wd_fieldname: \"solutionVersion\",\n                wd_oldvalue: Coalesce(OldRecord.wd_solutionversion, \"None\"), wd_newvalue: If(isStory && !IsBlank(sv), sv, \"None\"),\n                wd_operationname: \"UpdateIssue\"\n            }))\n    )\n)"
+}

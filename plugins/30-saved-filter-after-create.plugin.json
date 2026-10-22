@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraSavedFilterAftercreateSavedFiltersCreatePostoperation",
+  "displayName": "Pira · Saved Filter · After create — Saved Filters · Create · Post-operation",
+  "description": "Phase 3. Creator is an active member of the filter's project.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_savedfilter",
+    "message": "Create",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_savedfilter",
+    "wd_projectmember",
+    "wd_project",
+    "systemuser"
+  ],
+  "formula": "// Phase 3. A filter stores criteria only; sharing it never shares issue data (results are queried as the viewer).\nWith(\n    { saved: LookUp(wd_savedfilter, wd_savedfilterid = NewRecord.wd_savedfilterid) },\n    If(\n        IsBlank(saved.wd_Project),\n            Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] A saved filter belongs to a project.\" }),\n        IsBlank(LookUp(wd_projectmember,\n            wd_Project.wd_projectid = saved.wd_Project.wd_projectid &&\n            wd_User.systemuserid = saved.createdby.systemuserid &&\n            wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000')),\n            Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only project members can save filters in this project.\" })\n    )\n)"
+}

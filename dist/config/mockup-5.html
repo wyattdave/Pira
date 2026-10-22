@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pira — Mockup 5 · Command Deck</title>
+<style>
+:root{
+  --bg:#17181b;--bg-2:#1c1d21;--card:#212226;--card-2:#28292e;--line:#2e3036;--line-2:#3b3d45;
+  --text:#ecedf0;--muted:#9597a1;--faint:#666873;
+  --cyan:#00e5ff;--cyan-ink:#00242a;--cyan-t:rgba(0,229,255,.1);
+  --story:#3ddc97;--bug:#ff5c7a;--task:#4aa3ff;--epic:#b38bff;--warn:#ffb547;
+  --display:"Franklin Gothic Medium","Franklin Gothic","Arial Narrow",sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",sans-serif;
+  --mono:"Cascadia Code","Cascadia Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font:14px/1.5 var(--sans);overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+.shell{display:grid;grid-template-columns:76px 1fr 360px;height:100vh}
+/* slim nav */
+.nav{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 0;border-right:1px solid var(--line);background:var(--bg-2)}
+.logo{margin-bottom:18px}
+.n-btn{width:56px;padding:8px 0 6px;border-radius:12px;display:grid;justify-items:center;gap:3px;color:var(--faint);font-size:10.5px}
+.n-btn:hover{color:var(--text);background:var(--card)}
+.n-btn.on{color:var(--cyan)}
+.n-btn.on svg{filter:drop-shadow(0 0 6px rgba(0,229,255,.6))}
+.nav .grow{flex:1}
+.av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font:700 10.5px var(--sans);color:#0b0d10;background:var(--c);flex:none}
+.av.sm{width:22px;height:22px;font-size:9px}
+.av.none{background:transparent;border:1px dashed var(--line-2);color:var(--faint)}
+
+/* main */
+.main{overflow:auto;padding:26px 36px 90px;min-width:0}
+.cmd{display:flex;align-items:center;gap:10px;width:100%;max-width:640px;height:44px;padding:0 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--faint);text-align:left;transition:.15s}
+.cmd:hover{border-color:var(--cyan);color:var(--muted);box-shadow:0 0 0 4px var(--cyan-t)}
+.cmd .kbd{margin-left:auto}
+.kbd{font:500 11px var(--mono);border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--muted)}
+.hello{display:flex;align-items:flex-end;gap:16px;margin:34px 0 22px}
+.hello h1{font:400 44px/1 var(--display);letter-spacing:-.01em}
+.hello h1 em{font-style:normal;color:var(--cyan)}
+.hello p{color:var(--muted);margin-top:8px}
+.hello .spacer{flex:1}
+.create{height:40px;padding:0 18px;border-radius:12px;background:var(--cyan);color:var(--cyan-ink);font-weight:700;display:inline-flex;align-items:center;gap:8px}
+.create:hover{box-shadow:0 10px 30px rgba(0,229,255,.3)}
+.create .kbd{border-color:rgba(0,36,42,.35);color:var(--cyan-ink)}
+.sec{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px}
+.sec h2{font:400 20px var(--display);letter-spacing:.01em}
+.sec a{color:var(--muted);font-size:13px;text-decoration:none}.sec a:hover{color:var(--cyan)}
+.projects{display:grid;grid-template-columns:repeat(3,minmax(210px,1fr));gap:14px;margin-bottom:30px}
+.pcard{position:relative;border-radius:16px;background:var(--card);border:1px solid var(--line);padding:16px 16px 14px;overflow:hidden;transition:.18s;animation:rise .45s ease both}
+.pcard::before{content:"";position:absolute;inset:0 auto 0 0;width:8px;background:var(--pc)}
+.pcard:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.pcard header{display:flex;gap:12px;align-items:center;padding-left:6px}
+.pmark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--pc);color:#0b0d10;font:700 12px var(--mono)}
+.pcard h3{font-size:15px}
+.pcard small{color:var(--muted)}
+.pcard ul{list-style:none;margin:14px 0 10px 6px;display:grid;gap:4px}
+.pcard li{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+.pcard li b{color:var(--text);font-weight:600}
+.pcard footer{display:flex;gap:8px;margin-left:6px}
+.pcard footer button{font-size:12.5px;padding:4px 10px;border-radius:8px;background:var(--card-2);color:var(--muted)}
+.pcard footer button:hover{color:var(--cyan)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.tabs button{position:relative;padding:10px 12px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:8px}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected="true"]{color:var(--text)}
+.tabs button[aria-selected="true"]::after{content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--cyan)}
+.tabs .c{font:600 11px var(--mono);padding:0 7px;border-radius:999px;background:var(--card-2);color:var(--muted)}
+.tabs button[aria-selected="true"] .c{background:var(--cyan);color:var(--cyan-ink)}
+.grp{font:600 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:18px 0 6px}
+.item{display:grid;grid-template-columns:18px 1fr auto auto auto;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background .1s}
+.item:hover{background:var(--card)}
+.item[aria-selected="true"]{background:var(--cyan-t);box-shadow:inset 3px 0 0 var(--cyan)}
+.item .s{min-width:0}
+.item .s b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .s small{color:var(--faint);font:500 12px var(--mono)}
+.st{font:600 10.5px var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:6px}
+.st-todo{background:#2e3037;color:#c3c5cd}.st-progress{background:rgba(0,229,255,.14);color:var(--cyan)}.st-review{background:rgba(179,139,255,.16);color:var(--epic)}.st-done{background:rgba(61,220,151,.14);color:var(--story)}
+.due{font:500 12px var(--mono);color:var(--faint);min-width:56px;text-align:right}
+.due.late{color:var(--bug)}
+.empty{padding:40px;text-align:center;color:var(--faint)}
+
+/* peek */
+.peek{border-left:1px solid var(--line);background:var(--bg-2);display:flex;flex-direction:column;overflow:hidden}
+.pk-h{display:flex;align-items:center;gap:8px;padding:18px 20px 12px}
+.pk-h .k{font:500 13px var(--mono);color:var(--cyan)}
+.ib{width:30px;height:30px;border-radius:8px;color:var(--muted)}.ib:hover{background:var(--card);color:var(--text)}
+.spacer{flex:1}
+.pk-b{flex:1;overflow:auto;padding:0 20px 90px}
+.pk-b h3{font:400 24px/1.2 var(--display);margin-bottom:14px}
+.flow{display:flex;align-items:center;gap:0;margin-bottom:18px;background:var(--card);border-radius:10px;padding:4px}
+.flow button{flex:1;padding:7px 4px;border-radius:7px;font-size:11.5px;color:var(--faint);font-weight:600}
+.flow button:hover{color:var(--text)}
+.flow button[aria-pressed="true"]{background:var(--cyan);color:var(--cyan-ink)}
+.pk-b dl{display:grid;grid-template-columns:92px 1fr;gap:10px;font-size:13.5px;margin-bottom:18px}
+.pk-b dt{color:var(--muted)}
+.pk-b dd{display:flex;align-items:center;gap:8px}
+.pk-sec{font:600 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px}
+.cmt{display:flex;gap:10px;margin-top:12px;font-size:13.5px}
+.cmt .b{flex:1;background:var(--card);border-radius:12px;padding:9px 12px}
+.cmt small{color:var(--faint)}
+.cmt.sys .b{background:none;padding:3px 0;color:var(--muted)}
+.inp{width:100%;padding:9px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line-2);outline:none;resize:vertical}
+.inp:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-t)}
+.chip{font:500 11px var(--mono);padding:0 6px;border-radius:5px;background:var(--card-2)}
+
+/* palette */
+.scrim{position:fixed;inset:0;background:rgba(8,9,11,.6);backdrop-filter:blur(3px);display:none;justify-content:center;align-items:flex-start;padding-top:12vh;z-index:50}
+.scrim.open{display:flex}
+.pal{width:min(640px,94vw);border-radius:16px;background:var(--bg-2);border:1px solid var(--line-2);box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(0,229,255,.12);overflow:hidden;animation:pop .16s ease}
+@keyframes pop{from{opacity:0;transform:translateY(-8px) scale(.98)}}
+.pal-in{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.pal-in input{flex:1;background:none;border:0;outline:none;font-size:17px}
+.pal ul{list-style:none;max-height:50vh;overflow:auto;padding:6px}
+.pal li.h{font:600 11px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:10px 10px 4px}
+.pal li.o{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;cursor:pointer}
+.pal li.o[aria-selected="true"]{background:var(--cyan-t);box-shadow:inset 3px 0 0 var(--cyan)}
+.pal li.o small{margin-left:auto;color:var(--faint);font:500 12px var(--mono)}
+.pal li.o mark{background:none;color:var(--cyan);font-weight:700}
+.pal footer{display:flex;gap:14px;padding:9px 16px;border-top:1px solid var(--line);color:var(--faint);font-size:12px}
+.pal footer span{display:flex;gap:4px;align-items:center}
+/* create modal */
+.cm-card{width:min(560px,94vw);border-radius:16px;background:var(--bg-2);border:1px solid var(--line-2);padding:22px;box-shadow:0 40px 100px rgba(0,0,0,.6);animation:pop .16s ease}
+.cm-card h2{font:400 24px var(--display);margin-bottom:16px}
+.cm-card form{display:grid;gap:14px}
+.cm-card label{display:grid;gap:6px;color:var(--muted);font-size:13px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.acts{display:flex;justify-content:flex-end;gap:8px}
+.ghost{height:40px;padding:0 16px;border-radius:12px;border:1px solid var(--line-2)}
+.err{color:var(--bug);font-size:12px}
+.toast{position:fixed;left:50%;bottom:70px;transform:translate(-50%,16px);opacity:0;transition:.2s;background:var(--card-2);border:1px solid var(--line-2);border-radius:12px;padding:10px 16px;z-index:60}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.mock-pill{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:4px;padding:5px;background:rgba(23,24,27,.92);border:1px solid var(--line-2);border-radius:999px;z-index:100}
+.mock-pill a{min-width:30px;height:30px;padding:0 10px;border-radius:999px;display:grid;place-items:center;color:var(--muted);text-decoration:none;font:600 12px var(--mono)}
+.mock-pill a:hover{color:var(--text);background:var(--card)}
+.mock-pill a.on{background:var(--cyan);color:var(--cyan-ink)}
+.mock-pill span{padding:0 10px 0 8px;display:grid;place-items:center;color:var(--faint);font-size:12px}
+@media (max-width:1200px){.shell{grid-template-columns:76px 1fr}.peek{position:fixed;right:0;top:0;bottom:0;width:min(380px,100%);transform:translateX(100%);transition:.25s;z-index:20;box-shadow:-20px 0 50px rgba(0,0,0,.5)}.peek.open{transform:none}.projects{grid-template-columns:repeat(2,1fr)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="nav" aria-label="Global">
+    <div class="logo"><svg width="30" height="30" viewBox="0 0 26 26" aria-label="Pira"><defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#00a6ff"/></linearGradient></defs><path d="M13 1.5 24.5 13 13 24.5 1.5 13Z" fill="url(#g5)"/><path d="M10.2 7.8h4a3.4 3.4 0 0 1 0 6.8h-1.7V18h-2.3z" fill="#141518"/></svg></div>
+    <button class="n-btn on" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button class="n-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="10" rx="1.5"/><rect x="17" y="4" width="4" height="13" rx="1.5"/></svg>Boards</button>
+    <button class="n-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Issues</button>
+    <button class="n-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l3-3h12l3 3v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 7h18"/></svg>Projects</button>
+    <button class="n-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>Filters</button>
+    <div class="grow"></div>
+    <span class="av" style="--c:#00e5ff" title="You">DW</span>
+  </nav>
+
+  <main class="main" id="main">
+    <button class="cmd" id="openPal"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="m11 11 4 4"/></svg>Search issues, projects or run a command…<span class="kbd">Ctrl K</span></button>
+    <div class="hello"><div><h1>Good afternoon, <em>Dav</em></h1><p id="sub"></p></div><div class="spacer"></div><button class="create" id="openCreate">+ Create issue <span class="kbd">C</span></button></div>
+
+    <div class="sec"><h2>Recent projects</h2><a href="#">View all projects →</a></div>
+    <div class="projects" id="projects"></div>
+
+    <div class="tabs" role="tablist" aria-label="Your work" id="tabs"></div>
+    <div id="list"></div>
+  </main>
+
+  <aside class="peek" id="peek" aria-label="Issue preview"></aside>
+</div>
+
+<div class="scrim" id="palScrim"><div class="pal" role="dialog" aria-modal="true" aria-label="Command palette"><div class="pal-in"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#00e5ff" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="m11 11 4 4"/></svg><input id="palQ" placeholder="Type a key, summary, project or command" aria-label="Command search" role="combobox" aria-expanded="true" aria-controls="palList"></div><ul id="palList" role="listbox"></ul><footer><span><span class="kbd">↑</span><span class="kbd">↓</span>navigate</span><span><span class="kbd">Enter</span>open</span><span><span class="kbd">Esc</span>close</span></footer></div></div>
+
+<div class="scrim" id="cScrim"><div class="cm-card" role="dialog" aria-modal="true" aria-labelledby="cT"><h2 id="cT">Create issue</h2><form id="cForm" novalidate>
+  <div class="row2"><label>Project<select class="inp" id="cProj"><option value="PIRA">Pira Platform</option><option value="WEB">Website Revamp</option><option value="OPS">Ops Toolkit</option></select></label><label>Type<select class="inp" id="cType"><option value="task">Task</option><option value="story">Story</option><option value="bug">Bug</option><option value="epic">Epic</option></select></label></div>
+  <label>Summary<input class="inp" id="cS" maxlength="255" autocomplete="off"><span class="err" id="cE" hidden>Summary is required.</span></label>
+  <div class="row2"><label>Priority<select class="inp" id="cP"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></label><label>Due date<input class="inp" type="date" id="cD"></label></div>
+  <div class="acts"><button type="button" class="ghost" id="cCancel">Cancel</button><button class="create" type="submit">Create</button></div></form></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<nav class="mock-pill" aria-label="Mockups"><span>Pira mockups</span><a href="mockup-1.html">1</a><a href="mockup-2.html">2</a><a href="mockup-3.html">3</a><a href="mockup-4.html">4</a><a class="on" href="mockup-5.html">5</a></nav>
+
+<script>
+const ME='AM',TODAY='2026-10-14';
+const people={AM:{n:'Alex Morgan',c:'#00e5ff'},PS:{n:'Priya Shah',c:'#ff9f6e'},JL:{n:'Jordan Lee',c:'#b38bff'},SO:{n:'Sam Ortiz',c:'#3ddc97'},RK:{n:'Riley Kim',c:'#ffd166'}};
+const projects=[{k:'PIRA',n:'Pira Platform',c:'#00e5ff',t:'Kanban'},{k:'WEB',n:'Website Revamp',c:'#ff9f6e',t:'Kanban'},{k:'OPS',n:'Ops Toolkit',c:'#b38bff',t:'General'}];
+const cols=[{id:'todo',n:'To Do'},{id:'progress',n:'In Progress'},{id:'review',n:'In Review'},{id:'done',n:'Done'}];
+const hex={story:'#3ddc97',bug:'#ff5c7a',task:'#4aa3ff',epic:'#b38bff'};
+let issues=[
+ {k:'PIRA-101',s:'Allocate issue keys server-side with a sequence table',t:'story',p:'high',a:'AM',st:'todo',r:'PS',d:'2026-10-21',u:0},
+ {k:'PIRA-102',s:'Board drag-and-drop loses rank after refresh',t:'bug',p:'highest',a:'PS',st:'progress',r:'AM',d:'2026-10-12',u:0},
+ {k:'PIRA-104',s:'My Work overdue tab shows resolved issues',t:'bug',p:'high',a:'AM',st:'review',r:'RK',d:'2026-10-10',u:1},
+ {k:'PIRA-105',s:'Project settings — member roles',t:'task',p:'medium',a:'AM',st:'todo',r:'AM',d:'2026-10-30',u:3},
+ {k:'PIRA-107',s:'Phase 1 — Foundation & issue tracker',t:'epic',p:'medium',a:'AM',st:'progress',r:'AM',d:'2026-11-28',u:0},
+ {k:'WEB-41',s:'Hero banner fails contrast check',t:'bug',p:'high',a:'AM',st:'todo',r:'PS',d:'2026-10-13',u:1},
+ {k:'WEB-42',s:'Footer links open in the same tab',t:'task',p:'low',a:'SO',st:'todo',r:'AM',d:'',u:4},
+ {k:'OPS-7',s:'Rotate integration connection owner',t:'task',p:'medium',a:'AM',st:'progress',r:'JL',d:'2026-10-16',u:2},
+ {k:'PIRA-109',s:'Archive projects instead of deleting them',t:'story',p:'medium',a:null,st:'review',r:'AM',d:'',u:5},
+ {k:'PIRA-112',s:'Status change writes a history event',t:'bug',p:'medium',a:'AM',st:'done',r:'PS',d:'',u:0}
+];
+const TABS=[{id:'assigned',n:'Assigned to me',f:i=>i.a===ME&&i.st!=='done'},{id:'reported',n:'Reported by me',f:i=>i.r===ME},{id:'overdue',n:'Overdue',f:i=>i.d&&i.d<TODAY&&i.st!=='done'},{id:'recent',n:'Recently updated',f:i=>i.u<=2}];
+let tab='assigned',sel=null,seq={PIRA:112,WEB:42,OPS:7},palIx=0,palItems=[];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ti=t=>`<svg width="16" height="16" viewBox="0 0 16 16" role="img" aria-label="${t}"><rect width="16" height="16" rx="4" fill="${hex[t]}"/></svg>`;
+const av=(id,c='sm')=>id?`<span class="av ${c}" style="--c:${people[id].c}" title="${people[id].n}">${id}</span>`:`<span class="av none ${c}">?</span>`;
+const fmt=d=>d?new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'';
+const late=i=>i.d&&i.d<TODAY&&i.st!=='done';
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+function render(){
+  const mine=issues.filter(i=>i.a===ME&&i.st!=='done');
+  $('#sub').textContent=`${mine.length} open issues assigned to you · ${issues.filter(late).filter(i=>i.a===ME).length} overdue`;
+  $('#projects').innerHTML=projects.map((p,ix)=>{const pi=issues.filter(i=>i.k.startsWith(p.k+'-'));return `<article class="pcard" style="--pc:${p.c};animation-delay:${ix*70}ms"><header><span class="pmark">${p.k}</span><div><h3>${p.n}</h3><small>${p.t} project</small></div></header><ul><li>My open issues <b>${pi.filter(i=>i.a===ME&&i.st!=='done').length}</b></li><li>Done issues <b>${pi.filter(i=>i.st==='done').length}</b></li></ul><footer><button>Board</button><button>Issues</button><button>Settings</button></footer></article>`}).join('');
+  $('#tabs').innerHTML=TABS.map(t=>`<button role="tab" aria-selected="${t.id===tab}" data-t="${t.id}">${t.n}<span class="c">${issues.filter(t.f).length}</span></button>`).join('');
+  document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+  const l=issues.filter(TABS.find(t=>t.id===tab).f);
+  const groups=[['Today',i=>i.u===0],['This week',i=>i.u>0&&i.u<=3],['Earlier',i=>i.u>3]];
+  $('#list').innerHTML=l.length?groups.map(([g,f])=>{const gi=l.filter(f);return gi.length?`<div class="grp">${g}</div>`+gi.map(i=>`<div class="item" role="button" tabindex="0" data-k="${i.k}" aria-selected="${sel===i.k}">${ti(i.t)}<span class="s"><b>${esc(i.s)}</b><small>${i.k} · ${projects.find(p=>i.k.startsWith(p.k+'-')).n}</small></span><span class="st st-${i.st}">${cols.find(c=>c.id===i.st).n}</span><span class="due ${late(i)?'late':''}">${fmt(i.d)}</span>${av(i.a)}</div>`).join(''):''}).join(''):`<div class="empty">Nothing here — nice work.</div>`;
+  document.querySelectorAll('.item').forEach(it=>{it.onclick=()=>peek(it.dataset.k);it.onkeydown=e=>{if(e.key==='Enter')peek(it.dataset.k)}});
+}
+function peek(k){
+  sel=k;const i=issues.find(x=>x.k===k);render();
+  $('#peek').innerHTML=`<div class="pk-h">${ti(i.t)}<span class="k">${k}</span><button class="ib" id="copy" aria-label="Copy key">⧉</button><span class="spacer"></span><button class="ib" aria-label="Open">⤢</button><button class="ib" id="closeP" aria-label="Close">✕</button></div>
+  <div class="pk-b"><h3>${esc(i.s)}</h3><div class="flow" role="group" aria-label="Status">${cols.map(c=>`<button aria-pressed="${c.id===i.st}" data-st="${c.id}">${c.n}</button>`).join('')}</div>
+  <dl><dt>Assignee</dt><dd>${av(i.a)} ${i.a?people[i.a].n:'Unassigned'}</dd><dt>Reporter</dt><dd>${av(i.r)} ${people[i.r].n}</dd><dt>Priority</dt><dd>${cap(i.p)}</dd><dt>Due</dt><dd class="${late(i)?'due late':''}">${fmt(i.d)||'—'}</dd></dl>
+  <div class="pk-sec">Description</div><p style="color:#cfd1d8">Server is the source of truth; show friendly loading, empty and error states.</p>
+  <div class="pk-sec">Activity</div><textarea class="inp" id="cmt" rows="2" placeholder="Comment… Enter to save"></textarea>
+  ${(i.ev||[]).map(e=>e.c?`<div class="cmt">${av('AM','')}<div class="b"><b>Alex Morgan</b> <small>now</small><div>${esc(e.c)}</div></div></div>`:`<div class="cmt sys">${av('AM','')}<div class="b"><b style="color:var(--text)">You</b> moved <span class="chip">${e.o}</span> → <span class="chip">${e.n}</span></div></div>`).join('')}
+  <div class="cmt sys">${av(i.r,'')}<div class="b">${people[i.r].n} created this issue</div></div></div>`;
+  $('#peek').classList.add('open');
+  document.querySelectorAll('.flow button').forEach(b=>b.onclick=()=>{const o=cols.find(c=>c.id===i.st).n;if(b.dataset.st===i.st)return;i.st=b.dataset.st;i.u=0;(i.ev=i.ev||[]).unshift({o,n:cols.find(c=>c.id===i.st).n});peek(k);toast(`${k} → ${cols.find(c=>c.id===i.st).n}`)});
+  $('#closeP').onclick=()=>{sel=null;$('#peek').classList.remove('open');$('#peek').innerHTML=emptyPeek();render()};
+  $('#copy').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(k);toast('Copied '+k)};
+  $('#cmt').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&e.target.value.trim()){e.preventDefault();(i.ev=i.ev||[]).unshift({c:e.target.value.trim()});i.u=0;peek(k)}};
+}
+const emptyPeek=()=>`<div class="pk-b" style="display:grid;place-items:center;text-align:center;color:var(--faint);padding-top:30vh">Select an issue to preview it here.<br><br><span class="kbd">Ctrl K</span> to jump anywhere</div>`;
+/* palette */
+const ACTIONS=[{n:'Create issue',h:'C',run:()=>openCreate()},{n:'Go to PIRA board',h:'G B',run:()=>toast('Opening PIRA board…')},{n:'Show overdue issues',h:'',run:()=>{tab='overdue';render()}},{n:'Copy link to current issue',h:'',run:()=>toast(sel?'Copied '+sel:'No issue selected')}];
+function hl(t,q){if(!q)return esc(t);const ix=t.toLowerCase().indexOf(q);return ix<0?esc(t):esc(t.slice(0,ix))+'<mark>'+esc(t.slice(ix,ix+q.length))+'</mark>'+esc(t.slice(ix+q.length))}
+function palRender(){
+  const q=$('#palQ').value.trim().toLowerCase();
+  const iss=issues.filter(i=>!q||i.k.toLowerCase().includes(q)||i.s.toLowerCase().includes(q)).slice(0,6);
+  const pr=projects.filter(p=>!q||p.n.toLowerCase().includes(q)||p.k.toLowerCase().includes(q));
+  const ac=ACTIONS.filter(a=>!q||a.n.toLowerCase().includes(q));
+  palItems=[...iss.map(i=>({type:'i',i})),...pr.map(p=>({type:'p',p})),...ac.map(a=>({type:'a',a}))];palIx=Math.min(palIx,Math.max(0,palItems.length-1));
+  let h='',n=0;const opt=(inner,s)=>`<li class="o" role="option" data-ix="${n}" aria-selected="${n++===palIx}">${inner}<small>${s}</small></li>`;
+  if(iss.length)h+='<li class="h">Issues</li>'+iss.map(i=>opt(`${ti(i.t)}<span><span style="font:500 12px var(--mono);color:var(--muted)">${hl(i.k,q)}</span>&nbsp; ${hl(i.s,q)}</span>`,cols.find(c=>c.id===i.st).n)).join('');
+  if(pr.length)h+='<li class="h">Projects</li>'+pr.map(p=>opt(`<span class="pmark" style="--pc:${p.c};width:22px;height:22px;font-size:8.5px;border-radius:6px;background:${p.c}">${p.k}</span><span>${hl(p.n,q)}</span>`,p.t)).join('');
+  if(ac.length)h+='<li class="h">Actions</li>'+ac.map(a=>opt(`<span style="color:var(--cyan)">›</span><span>${hl(a.n,q)}</span>`,a.h)).join('');
+  $('#palList').innerHTML=h||'<li class="h" style="text-transform:none;letter-spacing:0;padding:20px">No results</li>';
+  document.querySelectorAll('#palList .o').forEach(o=>{o.onclick=()=>{palIx=+o.dataset.ix;palRun()};o.onmousemove=()=>{if(palIx!==+o.dataset.ix){palIx=+o.dataset.ix;palRender()}}});
+  const s=document.querySelector('#palList [aria-selected="true"]');s&&s.scrollIntoView({block:'nearest'});
+}
+function palRun(){const it=palItems[palIx];if(!it)return;closePal();if(it.type==='i'){tab=TABS.find(t=>t.f(it.i))?.id||tab;peek(it.i.k)}if(it.type==='p')toast('Opening '+it.p.n);if(it.type==='a')it.a.run()}
+function openPal(){$('#palScrim').classList.add('open');$('#palQ').value='';palIx=0;palRender();setTimeout(()=>$('#palQ').focus(),20)}
+function closePal(){$('#palScrim').classList.remove('open')}
+$('#palQ').oninput=()=>{palIx=0;palRender()};
+$('#palQ').onkeydown=e=>{if(e.key==='ArrowDown'){e.preventDefault();palIx=Math.min(palItems.length-1,palIx+1);palRender()}if(e.key==='ArrowUp'){e.preventDefault();palIx=Math.max(0,palIx-1);palRender()}if(e.key==='Enter'){e.preventDefault();palRun()}};
+$('#palScrim').onclick=e=>{if(e.target.id==='palScrim')closePal()};
+/* create */
+function openCreate(){$('#cScrim').classList.add('open');setTimeout(()=>$('#cS').focus(),20)}
+function closeCreate(){$('#cScrim').classList.remove('open');$('#cForm').reset();$('#cE').hidden=true}
+$('#cForm').onsubmit=e=>{e.preventDefault();const s=$('#cS').value.trim();if(!s){$('#cE').hidden=false;$('#cS').focus();return}const p=$('#cProj').value,k=p+'-'+(++seq[p]);issues.unshift({k,s,t:$('#cType').value,p:$('#cP').value,a:ME,st:'todo',r:ME,d:$('#cD').value,u:0});closeCreate();tab='assigned';peek(k);toast(k+' created')};
+$('#cCancel').onclick=closeCreate;$('#cScrim').onclick=e=>{if(e.target.id==='cScrim')closeCreate()};
+$('#openPal').onclick=openPal;$('#openCreate').onclick=openCreate;
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2000)}
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPal();return}if(e.key==='Escape'){closePal();closeCreate();return}if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;if(e.key==='c'){e.preventDefault();openCreate()}if(e.key==='/'){e.preventDefault();openPal()}});
+$('#peek').innerHTML=emptyPeek();render();
+</script>
+</body>
+</html>

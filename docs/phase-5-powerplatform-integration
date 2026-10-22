@@ -1,0 +1,20 @@
+# Phase 5 — Power Platform Integration
+
+## Goal
+
+Add the ability to link solutions to epics
+
+## NFRs
+- use powerplatformadminv2 connector
+- use 'Retrieve a list of environments' for environment picker
+- use dataverse connector to list solutions from solution table
+
+
+## requirement
+-Per epic allow user to select solution in a dev, test, stage, and prod environment
+-the ui should show a searchable environment picker, after the environment is selected it should show a searchable solution picker
+- if a solution has already been selected in a prior environment then after the environment is selected it should try and auto select the solution using the SchemaName as the lookup value
+- for each environment return the solution verstion and modified date
+- include a clickable link to open the solution
+- in a story add option to enter a version number
+- in a story have the ability to select either dev,test,stage, or prod and then the ui should then show the version and if it matches the one entered

@@ -1,0 +1,986 @@
+{
+  "environmentId": "9b45eff8-d905-e28a-918f-2e315619890d",
+  "environmentUrl": "https://orgc34f5157.crm.dynamics.com/",
+  "environmentName": "Platform-Tools",
+  "publisher": "wyattdave",
+  "notes": [
+    "Workspace convention, not a CAP CLI input. Create one table at a time, in array order, with createDataverseTable(spec.tables[i], { cwd, environment: spec.environmentUrl, publish: true }).",
+    "Reporter / comment author / history 'changed by' use Dataverse's server-stamped createdby, so no client-supplied reporter column exists.",
+    "Issue status is a local choice with a fixed default workflow (see dist/config/app-config.js WORKFLOW). Board columns map to those status values.",
+    "Alternate keys are not supported by the CAP table API. Add them manually after creation: wd_project(wd_key), wd_issue(wd_issuekey), wd_projectsequence(wd_project), wd_projectmember(wd_project + wd_user).",
+    "Phase 2 order (existing tables are reused and only missing columns are added): wd_Sprint, wd_Issue (adds Story Points + Sprint), wd_BoardIssue, wd_IssueLink. Phase 2 alternate keys: wd_boardissue(wd_board + wd_issue), wd_issuelink(wd_fromissue + wd_toissue + wd_linktype).",
+    "Phase 3 order: wd_Project (adds workflow columns), wd_Issue (adds Resolution), wd_WorkflowTransition, wd_SavedFilter, wd_Notification, wd_NotificationPreference, wd_IssueAttachment, wd_CustomField, wd_CustomFieldValue. CAP skips existing columns, so the four new Issue Status values (Backlog 100000004, Blocked 100000005, In Testing 100000006, Closed 100000007) are added to wd_issue.wd_status and wd_boardcolumn.wd_status with the InsertOptionValue Web API action. Phase 3 alternate keys: wd_workflowtransition(wd_project + wd_fromstatus + wd_tostatus), wd_notificationpreference(wd_user), wd_customfieldvalue(wd_issue + wd_customfield).",
+    "Phase 4 order: wd_Version, wd_Issue (adds Original/Remaining Estimate, Time Spent, Fix Version, Started On), wd_WorkLog. Phase 4 alternate key: wd_version(wd_project + wd_name).",
+    "Phase 5 order: wd_Issue (adds Solution Version), wd_EpicSolution. Phase 5 alternate key: wd_epicsolution(wd_issue + wd_stage)."
+  ],
+  "tables": [
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_Project",
+      "displayName": "Project",
+      "displayCollectionName": "Projects",
+      "description": "Pira project. Archive instead of deleting once issues exist.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Project Name",
+      "primaryNameMaxLength": 200,
+      "fields": [
+        {
+          "schemaName": "wd_Key",
+          "displayName": "Project Key",
+          "type": "text",
+          "maxLength": 10,
+          "requiredLevel": "ApplicationRequired",
+          "description": "Uppercase 2-10 characters, unique, immutable once issues exist."
+        },
+        {
+          "schemaName": "wd_Description",
+          "displayName": "Description",
+          "type": "multilineText",
+          "maxLength": 4000
+        },
+        {
+          "schemaName": "wd_ProjectType",
+          "displayName": "Project Type",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Kanban"
+            },
+            {
+              "value": 100000001,
+              "label": "Scrum"
+            },
+            {
+              "value": 100000002,
+              "label": "General"
+            }
+          ]
+        },
+        {
+          "schemaName": "wd_Lead",
+          "displayName": "Project Lead",
+          "type": "lookup",
+          "targetEntity": "systemuser",
+          "relationshipSchemaName": "wd_systemuser_project_lead"
+        },
+        {
+          "schemaName": "wd_State",
+          "displayName": "Project State",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Active"
+            },
+            {
+              "value": 100000001,
+              "label": "Archived"
+            }
+          ]
+        },
+        { "schemaName": "wd_WorkflowStatuses", "displayName": "Workflow Statuses", "type": "text", "maxLength": 200, "description": "Phase 3. Ordered comma-separated Issue Status values; blank = default workflow." },
+        { "schemaName": "wd_InitialStatus", "displayName": "Initial Status", "type": "wholeNumber", "minValue": 100000000, "maxValue": 100000099, "description": "Phase 3. Issue Status value for new issues." },
+        { "schemaName": "wd_WorkflowTemplate", "displayName": "Workflow Template", "type": "text", "maxLength": 50, "description": "Phase 3. Key of the last template applied (informational)." }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_ProjectSequence",
+      "displayName": "Project Sequence",
+      "displayCollectionName": "Project Sequences",
+      "description": "One row per project; next issue number for key allocation.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Sequence Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        {
+          "schemaName": "wd_Project",
+          "displayName": "Project",
+          "type": "lookup",
+          "targetEntity": "wd_project",
+          "relationshipSchemaName": "wd_project_projectsequence"
+        },
+        {
+          "schemaName": "wd_NextNumber",
+          "displayName": "Next Number",
+          "type": "wholeNumber",
+          "minValue": 1,
+          "maxValue": 2147483647
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_ProjectMember",
+      "displayName": "Project Member",
+      "displayCollectionName": "Project Members",
+      "description": "Project membership and project-level role. Removal deactivates rather than deletes.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Member Name",
+      "primaryNameMaxLength": 200,
+      "fields": [
+        {
+          "schemaName": "wd_Project",
+          "displayName": "Project",
+          "type": "lookup",
+          "targetEntity": "wd_project",
+          "relationshipSchemaName": "wd_project_projectmember"
+        },
+        {
+          "schemaName": "wd_User",
+          "displayName": "User",
+          "type": "lookup",
+          "targetEntity": "systemuser",
+          "relationshipSchemaName": "wd_systemuser_projectmember"
+        },
+        {
+          "schemaName": "wd_ProjectRole",
+          "displayName": "Project Role",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Lead"
+            },
+            {
+              "value": 100000001,
+              "label": "Contributor"
+            },
+            {
+              "value": 100000002,
+              "label": "Stakeholder"
+            }
+          ]
+        },
+        {
+          "schemaName": "wd_MembershipState",
+          "displayName": "Membership State",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Active"
+            },
+            {
+              "value": 100000001,
+              "label": "Removed"
+            }
+          ]
+        },
+        {
+          "schemaName": "wd_JoinedOn",
+          "displayName": "Joined On",
+          "type": "dateTime"
+        },
+        {
+          "schemaName": "wd_RemovedOn",
+          "displayName": "Removed On",
+          "type": "dateTime"
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_Board",
+      "displayName": "Board",
+      "displayCollectionName": "Boards",
+      "description": "Project board. Phase 1 uses one default Kanban board per project.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Board Name",
+      "primaryNameMaxLength": 200,
+      "fields": [
+        {
+          "schemaName": "wd_Project",
+          "displayName": "Project",
+          "type": "lookup",
+          "targetEntity": "wd_project",
+          "relationshipSchemaName": "wd_project_board"
+        },
+        {
+          "schemaName": "wd_BoardType",
+          "displayName": "Board Type",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Kanban"
+            },
+            {
+              "value": 100000001,
+              "label": "Scrum"
+            }
+          ]
+        },
+        {
+          "schemaName": "wd_IsDefault",
+          "displayName": "Is Default",
+          "type": "yesNo"
+        },
+        {
+          "schemaName": "wd_Active",
+          "displayName": "Active",
+          "type": "yesNo"
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_BoardColumn",
+      "displayName": "Board Column",
+      "displayCollectionName": "Board Columns",
+      "description": "Board column mapped to one issue status.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Column Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        {
+          "schemaName": "wd_Board",
+          "displayName": "Board",
+          "type": "lookup",
+          "targetEntity": "wd_board",
+          "relationshipSchemaName": "wd_board_boardcolumn"
+        },
+        {
+          "schemaName": "wd_Order",
+          "displayName": "Order",
+          "type": "wholeNumber",
+          "minValue": 0,
+          "maxValue": 1000
+        },
+        {
+          "schemaName": "wd_Status",
+          "displayName": "Status",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "To Do"
+            },
+            {
+              "value": 100000001,
+              "label": "In Progress"
+            },
+            {
+              "value": 100000002,
+              "label": "In Review"
+            },
+            {
+              "value": 100000003,
+              "label": "Done"
+            },
+            { "value": 100000004, "label": "Backlog" },
+            { "value": 100000005, "label": "Blocked" },
+            { "value": 100000006, "label": "In Testing" },
+            { "value": 100000007, "label": "Closed" }
+          ]
+        },
+        {
+          "schemaName": "wd_WipLimit",
+          "displayName": "WIP Limit",
+          "type": "wholeNumber",
+          "minValue": 0,
+          "maxValue": 1000
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_Issue",
+      "displayName": "Issue",
+      "displayCollectionName": "Issues",
+      "description": "Work item. Primary name is the immutable issue key (e.g. PIRA-12).",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_IssueKey",
+      "primaryNameDisplayName": "Issue Key",
+      "primaryNameMaxLength": 20,
+      "fields": [
+        {
+          "schemaName": "wd_Summary",
+          "displayName": "Summary",
+          "type": "text",
+          "maxLength": 255,
+          "requiredLevel": "ApplicationRequired"
+        },
+        {
+          "schemaName": "wd_Project",
+          "displayName": "Project",
+          "type": "lookup",
+          "targetEntity": "wd_project",
+          "relationshipSchemaName": "wd_project_issue"
+        },
+        {
+          "schemaName": "wd_IssueSequence",
+          "displayName": "Issue Sequence",
+          "type": "wholeNumber",
+          "minValue": 1,
+          "maxValue": 2147483647
+        },
+        {
+          "schemaName": "wd_Description",
+          "displayName": "Description",
+          "type": "multilineText",
+          "maxLength": 10000
+        },
+        {
+          "schemaName": "wd_IssueType",
+          "displayName": "Issue Type",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Task"
+            },
+            {
+              "value": 100000001,
+              "label": "Bug"
+            },
+            {
+              "value": 100000002,
+              "label": "Story"
+            },
+            {
+              "value": 100000003,
+              "label": "Epic"
+            }
+          ]
+        },
+        {
+          "schemaName": "wd_Status",
+          "displayName": "Status",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "To Do"
+            },
+            {
+              "value": 100000001,
+              "label": "In Progress"
+            },
+            {
+              "value": 100000002,
+              "label": "In Review"
+            },
+            {
+              "value": 100000003,
+              "label": "Done"
+            },
+            { "value": 100000004, "label": "Backlog" },
+            { "value": 100000005, "label": "Blocked" },
+            { "value": 100000006, "label": "In Testing" },
+            { "value": 100000007, "label": "Closed" }
+          ]
+        },
+        {
+          "schemaName": "wd_Priority",
+          "displayName": "Priority",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Lowest"
+            },
+            {
+              "value": 100000001,
+              "label": "Low"
+            },
+            {
+              "value": 100000002,
+              "label": "Medium"
+            },
+            {
+              "value": 100000003,
+              "label": "High"
+            },
+            {
+              "value": 100000004,
+              "label": "Highest"
+            }
+          ]
+        },
+        {
+          "schemaName": "wd_Assignee",
+          "displayName": "Assignee",
+          "type": "lookup",
+          "targetEntity": "systemuser",
+          "relationshipSchemaName": "wd_systemuser_issue_assignee"
+        },
+        {
+          "schemaName": "wd_ParentIssue",
+          "displayName": "Parent Issue",
+          "type": "lookup",
+          "targetEntity": "wd_issue",
+          "relationshipSchemaName": "wd_issue_parentissue"
+        },
+        {
+          "schemaName": "wd_DueDate",
+          "displayName": "Due Date",
+          "type": "dateOnly"
+        },
+        {
+          "schemaName": "wd_Rank",
+          "displayName": "Rank",
+          "type": "text",
+          "maxLength": 64,
+          "description": "Base-36 fractional rank for ordering within a column."
+        },
+        {
+          "schemaName": "wd_ResolvedOn",
+          "displayName": "Resolved On",
+          "type": "dateTime"
+        },
+        {
+          "schemaName": "wd_Archived",
+          "displayName": "Archived",
+          "type": "yesNo"
+        },
+        {
+          "schemaName": "wd_StoryPoints",
+          "displayName": "Story Points",
+          "type": "wholeNumber",
+          "minValue": 0,
+          "maxValue": 1000,
+          "description": "Phase 2. Optional whole-number estimate."
+        },
+        {
+          "schemaName": "wd_Sprint",
+          "displayName": "Sprint",
+          "type": "lookup",
+          "targetEntity": "wd_sprint",
+          "relationshipSchemaName": "wd_sprint_issue",
+          "description": "Phase 2. Blank = backlog."
+        },
+        {
+          "schemaName": "wd_Resolution",
+          "displayName": "Resolution",
+          "type": "choice",
+          "description": "Phase 3. Set when moving to a done status; cleared when reopened.",
+          "options": [
+            { "value": 100000000, "label": "Done" },
+            { "value": 100000001, "label": "Won't Do" },
+            { "value": 100000002, "label": "Duplicate" },
+            { "value": 100000003, "label": "Cannot Reproduce" }
+          ]
+        },
+        { "schemaName": "wd_OriginalEstimate", "displayName": "Original Estimate", "type": "wholeNumber", "minValue": 0, "maxValue": 1000000, "description": "Phase 4. Minutes (1d = 8h, 1w = 5d)." },
+        { "schemaName": "wd_RemainingEstimate", "displayName": "Remaining Estimate", "type": "wholeNumber", "minValue": 0, "maxValue": 1000000, "description": "Phase 4. Minutes." },
+        { "schemaName": "wd_TimeSpent", "displayName": "Time Spent", "type": "wholeNumber", "minValue": 0, "maxValue": 100000000, "description": "Phase 4. Minutes; sum of the issue's non-voided work logs, recalculated by plug-ins 34-35." },
+        { "schemaName": "wd_FixVersion", "displayName": "Fix Version", "type": "lookup", "targetEntity": "wd_version", "relationshipSchemaName": "wd_version_issue", "description": "Phase 4. Release the issue ships in (same project)." },
+        { "schemaName": "wd_StartedOn", "displayName": "Started On", "type": "dateTime", "description": "Phase 4. First time the issue entered an in-progress status (cycle time start)." },
+        { "schemaName": "wd_SolutionVersion", "displayName": "Solution Version", "type": "text", "maxLength": 50, "description": "Phase 5. Stories only: the epic solution version this story needs (e.g. 1.0.0.2)." }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_IssueComment",
+      "displayName": "Issue Comment",
+      "displayCollectionName": "Issue Comments",
+      "description": "Comment on an issue. Author is createdby.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Comment Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        {
+          "schemaName": "wd_Issue",
+          "displayName": "Issue",
+          "type": "lookup",
+          "targetEntity": "wd_issue",
+          "relationshipSchemaName": "wd_issue_issuecomment"
+        },
+        {
+          "schemaName": "wd_Body",
+          "displayName": "Body",
+          "type": "multilineText",
+          "maxLength": 10000
+        },
+        {
+          "schemaName": "wd_IsEdited",
+          "displayName": "Is Edited",
+          "type": "yesNo"
+        },
+        {
+          "schemaName": "wd_EditedOn",
+          "displayName": "Edited On",
+          "type": "dateTime"
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_IssueHistory",
+      "displayName": "Issue History",
+      "displayCollectionName": "Issue History",
+      "description": "Append-only change history. Changed by = createdby, changed on = createdon.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "History Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        {
+          "schemaName": "wd_Issue",
+          "displayName": "Issue",
+          "type": "lookup",
+          "targetEntity": "wd_issue",
+          "relationshipSchemaName": "wd_issue_issuehistory"
+        },
+        {
+          "schemaName": "wd_EventType",
+          "displayName": "Event Type",
+          "type": "choice",
+          "options": [
+            {
+              "value": 100000000,
+              "label": "Created"
+            },
+            {
+              "value": 100000001,
+              "label": "Field Changed"
+            },
+            {
+              "value": 100000002,
+              "label": "Commented"
+            },
+            {
+              "value": 100000003,
+              "label": "Transitioned"
+            },
+            {
+              "value": 100000004,
+              "label": "Linked"
+            },
+            {
+              "value": 100000005,
+              "label": "Sprint Changed"
+            },
+            {
+              "value": 100000006,
+              "label": "Archived"
+            }
+          ]
+        },
+        {
+          "schemaName": "wd_FieldName",
+          "displayName": "Field Name",
+          "type": "text",
+          "maxLength": 100
+        },
+        {
+          "schemaName": "wd_OldValue",
+          "displayName": "Old Value",
+          "type": "text",
+          "maxLength": 400
+        },
+        {
+          "schemaName": "wd_NewValue",
+          "displayName": "New Value",
+          "type": "text",
+          "maxLength": 400
+        },
+        {
+          "schemaName": "wd_CorrelationId",
+          "displayName": "Correlation Id",
+          "type": "text",
+          "maxLength": 64
+        },
+        {
+          "schemaName": "wd_OperationName",
+          "displayName": "Operation Name",
+          "type": "text",
+          "maxLength": 100
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_Label",
+      "displayName": "Label",
+      "displayCollectionName": "Labels",
+      "description": "Project-scoped label (normalized, Jira-style free-form).",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Label Name",
+      "primaryNameMaxLength": 50,
+      "fields": [
+        {
+          "schemaName": "wd_Project",
+          "displayName": "Project",
+          "type": "lookup",
+          "targetEntity": "wd_project",
+          "relationshipSchemaName": "wd_project_label"
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_IssueLabel",
+      "displayName": "Issue Label",
+      "displayCollectionName": "Issue Labels",
+      "description": "Issue-to-label link row.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Issue Label Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        {
+          "schemaName": "wd_Issue",
+          "displayName": "Issue",
+          "type": "lookup",
+          "targetEntity": "wd_issue",
+          "relationshipSchemaName": "wd_issue_issuelabel"
+        },
+        {
+          "schemaName": "wd_Label",
+          "displayName": "Label",
+          "type": "lookup",
+          "targetEntity": "wd_label",
+          "relationshipSchemaName": "wd_label_issuelabel"
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_Sprint",
+      "displayName": "Sprint",
+      "displayCollectionName": "Sprints",
+      "description": "Phase 2. Time-boxed iteration on one board. One active sprint per board.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Sprint Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_sprint" },
+        { "schemaName": "wd_Board", "displayName": "Board", "type": "lookup", "targetEntity": "wd_board", "relationshipSchemaName": "wd_board_sprint" },
+        { "schemaName": "wd_Goal", "displayName": "Sprint Goal", "type": "multilineText", "maxLength": 2000 },
+        { "schemaName": "wd_StartDate", "displayName": "Start Date", "type": "dateOnly" },
+        { "schemaName": "wd_EndDate", "displayName": "End Date", "type": "dateOnly" },
+        {
+          "schemaName": "wd_SprintState",
+          "displayName": "Sprint State",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Planned" },
+            { "value": 100000001, "label": "Active" },
+            { "value": 100000002, "label": "Completed" },
+            { "value": 100000003, "label": "Cancelled" }
+          ]
+        },
+        { "schemaName": "wd_StartedOn", "displayName": "Started On", "type": "dateTime" },
+        { "schemaName": "wd_CompletedOn", "displayName": "Completed On", "type": "dateTime" },
+        { "schemaName": "wd_CorrectionNote", "displayName": "Correction Note", "type": "text", "maxLength": 400, "description": "Required to reopen a completed sprint (lead correction path)." },
+        { "schemaName": "wd_CommittedIssues", "displayName": "Committed Issues", "type": "wholeNumber", "minValue": 0, "maxValue": 100000 },
+        { "schemaName": "wd_CommittedPoints", "displayName": "Committed Points", "type": "wholeNumber", "minValue": 0, "maxValue": 1000000 },
+        { "schemaName": "wd_CompletedIssues", "displayName": "Completed Issues", "type": "wholeNumber", "minValue": 0, "maxValue": 100000 },
+        { "schemaName": "wd_CompletedPoints", "displayName": "Completed Points", "type": "wholeNumber", "minValue": 0, "maxValue": 1000000 },
+        { "schemaName": "wd_IncompleteIssues", "displayName": "Incomplete Issues", "type": "wholeNumber", "minValue": 0, "maxValue": 100000 },
+        { "schemaName": "wd_IncompletePoints", "displayName": "Incomplete Points", "type": "wholeNumber", "minValue": 0, "maxValue": 1000000 }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_BoardIssue",
+      "displayName": "Board Issue",
+      "displayCollectionName": "Board Issues",
+      "description": "Phase 2. Puts an issue on an extra (non-default) board. The default board shows every project issue.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Board Issue Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Board", "displayName": "Board", "type": "lookup", "targetEntity": "wd_board", "relationshipSchemaName": "wd_board_boardissue" },
+        { "schemaName": "wd_Issue", "displayName": "Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_boardissue" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_IssueLink",
+      "displayName": "Issue Link",
+      "displayCollectionName": "Issue Links",
+      "description": "Phase 2. Directed link stored once: From blocks / relates to / duplicates To.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Issue Link Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_FromIssue", "displayName": "From Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_issuelink_from" },
+        { "schemaName": "wd_ToIssue", "displayName": "To Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_issuelink_to" },
+        {
+          "schemaName": "wd_LinkType",
+          "displayName": "Link Type",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Blocks" },
+            { "value": 100000001, "label": "Relates To" },
+            { "value": 100000002, "label": "Duplicates" }
+          ]
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_WorkflowTransition",
+      "displayName": "Workflow Transition",
+      "displayCollectionName": "Workflow Transitions",
+      "description": "Phase 3. Allowed status move for a project, with optional required fields. Deactivated, never deleted.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Transition Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_workflowtransition" },
+        { "schemaName": "wd_FromStatus", "displayName": "From Status", "type": "wholeNumber", "minValue": 100000000, "maxValue": 100000099 },
+        { "schemaName": "wd_ToStatus", "displayName": "To Status", "type": "wholeNumber", "minValue": 100000000, "maxValue": 100000099 },
+        { "schemaName": "wd_Active", "displayName": "Active", "type": "yesNo" },
+        { "schemaName": "wd_RequireResolution", "displayName": "Require Resolution", "type": "yesNo" },
+        { "schemaName": "wd_RequireAssignee", "displayName": "Require Assignee", "type": "yesNo" },
+        { "schemaName": "wd_RequireStoryPoints", "displayName": "Require Story Points", "type": "yesNo" },
+        { "schemaName": "wd_RequireDueDate", "displayName": "Require Due Date", "type": "yesNo" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_SavedFilter",
+      "displayName": "Saved Filter",
+      "displayCollectionName": "Saved Filters",
+      "description": "Phase 3. Issue filter criteria (JSON, allowlisted keys). Owner = createdby. Results are always re-queried as the viewer.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Filter Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_savedfilter" },
+        { "schemaName": "wd_Criteria", "displayName": "Criteria", "type": "multilineText", "maxLength": 4000 },
+        {
+          "schemaName": "wd_Visibility",
+          "displayName": "Visibility",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Private" },
+            { "value": 100000001, "label": "Project Members" }
+          ]
+        }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_Notification",
+      "displayName": "Notification",
+      "displayCollectionName": "Notifications",
+      "description": "Phase 3. In-app notification and delivery outbox. Never stores issue summaries. Actor = createdby.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Notification Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Recipient", "displayName": "Recipient", "type": "lookup", "targetEntity": "systemuser", "relationshipSchemaName": "wd_systemuser_notification_recipient" },
+        { "schemaName": "wd_Issue", "displayName": "Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_notification" },
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_notification" },
+        {
+          "schemaName": "wd_EventType",
+          "displayName": "Event Type",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Assigned" },
+            { "value": 100000001, "label": "Mentioned" },
+            { "value": 100000002, "label": "Status Changed" },
+            { "value": 100000003, "label": "Commented" },
+            { "value": 100000004, "label": "Bulk Changed" }
+          ]
+        },
+        { "schemaName": "wd_Detail", "displayName": "Detail", "type": "text", "maxLength": 200 },
+        { "schemaName": "wd_ItemCount", "displayName": "Item Count", "type": "wholeNumber", "minValue": 0, "maxValue": 100000 },
+        { "schemaName": "wd_IsRead", "displayName": "Is Read", "type": "yesNo" },
+        { "schemaName": "wd_ReadOn", "displayName": "Read On", "type": "dateTime" },
+        {
+          "schemaName": "wd_DeliveryState",
+          "displayName": "Delivery State",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Pending" },
+            { "value": 100000001, "label": "Sent" },
+            { "value": 100000002, "label": "Skipped" },
+            { "value": 100000003, "label": "Failed" }
+          ]
+        },
+        { "schemaName": "wd_DeliveredOn", "displayName": "Delivered On", "type": "dateTime" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_NotificationPreference",
+      "displayName": "Notification Preference",
+      "displayCollectionName": "Notification Preferences",
+      "description": "Phase 3. One row per user; no row = defaults (all in-app on, email/Teams off).",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Preference Name",
+      "primaryNameMaxLength": 200,
+      "fields": [
+        { "schemaName": "wd_User", "displayName": "User", "type": "lookup", "targetEntity": "systemuser", "relationshipSchemaName": "wd_systemuser_notificationpreference" },
+        { "schemaName": "wd_NotifyAssigned", "displayName": "Notify Assigned", "type": "yesNo" },
+        { "schemaName": "wd_NotifyMentioned", "displayName": "Notify Mentioned", "type": "yesNo" },
+        { "schemaName": "wd_NotifyStatus", "displayName": "Notify Status", "type": "yesNo" },
+        { "schemaName": "wd_NotifyComments", "displayName": "Notify Comments", "type": "yesNo" },
+        { "schemaName": "wd_NotifyBulk", "displayName": "Notify Bulk", "type": "yesNo" },
+        { "schemaName": "wd_SendEmail", "displayName": "Send Email", "type": "yesNo" },
+        { "schemaName": "wd_SendTeams", "displayName": "Send Teams", "type": "yesNo" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_IssueAttachment",
+      "displayName": "Issue Attachment",
+      "displayCollectionName": "Issue Attachments",
+      "description": "Phase 3. File attached to an issue (Dataverse file column). Uploader = createdby. No public links.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "File Name",
+      "primaryNameMaxLength": 200,
+      "fields": [
+        { "schemaName": "wd_Issue", "displayName": "Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_issueattachment" },
+        { "schemaName": "wd_File", "displayName": "File", "type": "file", "maxSizeInKB": 10240 },
+        { "schemaName": "wd_FileSize", "displayName": "File Size", "type": "wholeNumber", "minValue": 0, "maxValue": 2147483647 },
+        { "schemaName": "wd_ContentType", "displayName": "Content Type", "type": "text", "maxLength": 100 }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_CustomField",
+      "displayName": "Custom Field",
+      "displayCollectionName": "Custom Fields",
+      "description": "Phase 3. Project-scoped custom field definition (text, number, date, yes/no, single choice).",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Field Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_customfield" },
+        {
+          "schemaName": "wd_FieldType",
+          "displayName": "Field Type",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Text" },
+            { "value": 100000001, "label": "Number" },
+            { "value": 100000002, "label": "Date" },
+            { "value": 100000003, "label": "Yes No" },
+            { "value": 100000004, "label": "Single Choice" }
+          ]
+        },
+        { "schemaName": "wd_Options", "displayName": "Options", "type": "multilineText", "maxLength": 2000, "description": "Single choice options, one per line." },
+        { "schemaName": "wd_IssueTypes", "displayName": "Issue Types", "type": "text", "maxLength": 100, "description": "Comma-separated Issue Type values; blank = all types." },
+        { "schemaName": "wd_FieldDescription", "displayName": "Field Description", "type": "text", "maxLength": 200 },
+        { "schemaName": "wd_Order", "displayName": "Order", "type": "wholeNumber", "minValue": 0, "maxValue": 1000 },
+        { "schemaName": "wd_Active", "displayName": "Active", "type": "yesNo" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_CustomFieldValue",
+      "displayName": "Custom Field Value",
+      "displayCollectionName": "Custom Field Values",
+      "description": "Phase 3. One typed value per issue and custom field. Only the column for the field's type is used.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Value Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Issue", "displayName": "Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_customfieldvalue" },
+        { "schemaName": "wd_CustomField", "displayName": "Custom Field", "type": "lookup", "targetEntity": "wd_customfield", "relationshipSchemaName": "wd_customfield_customfieldvalue" },
+        { "schemaName": "wd_TextValue", "displayName": "Text Value", "type": "text", "maxLength": 400 },
+        { "schemaName": "wd_NumberValue", "displayName": "Number Value", "type": "decimal", "precision": 4, "minValue": -10000000000, "maxValue": 10000000000 },
+        { "schemaName": "wd_DateValue", "displayName": "Date Value", "type": "dateOnly" },
+        { "schemaName": "wd_BooleanValue", "displayName": "Boolean Value", "type": "yesNo" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_Version",
+      "displayName": "Version",
+      "displayCollectionName": "Versions",
+      "description": "Phase 4. Project release/version. Managed by project leads; archived instead of deleted.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Version Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_version" },
+        { "schemaName": "wd_VersionDescription", "displayName": "Version Description", "type": "multilineText", "maxLength": 2000 },
+        { "schemaName": "wd_StartDate", "displayName": "Start Date", "type": "dateOnly" },
+        { "schemaName": "wd_ReleaseDate", "displayName": "Release Date", "type": "dateOnly" },
+        {
+          "schemaName": "wd_VersionState",
+          "displayName": "Version State",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Unreleased" },
+            { "value": 100000001, "label": "Released" },
+            { "value": 100000002, "label": "Archived" }
+          ]
+        },
+        { "schemaName": "wd_ReleasedOn", "displayName": "Released On", "type": "dateTime" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_WorkLog",
+      "displayName": "Work Log",
+      "displayCollectionName": "Work Logs",
+      "description": "Phase 4. Time logged against an issue. Author = createdby. Voided with a reason, never deleted.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Work Log Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Issue", "displayName": "Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_worklog" },
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_worklog" },
+        { "schemaName": "wd_Minutes", "displayName": "Minutes", "type": "wholeNumber", "minValue": 0, "maxValue": 1440 },
+        { "schemaName": "wd_WorkDate", "displayName": "Work Date", "type": "dateOnly" },
+        { "schemaName": "wd_WorkComment", "displayName": "Work Comment", "type": "multilineText", "maxLength": 1000 },
+        { "schemaName": "wd_Voided", "displayName": "Voided", "type": "yesNo" },
+        { "schemaName": "wd_VoidReason", "displayName": "Void Reason", "type": "text", "maxLength": 400 },
+        { "schemaName": "wd_VoidedOn", "displayName": "Voided On", "type": "dateTime" }
+      ]
+    },
+    {
+      "publisherPrefix": "wd",
+      "schemaName": "wd_EpicSolution",
+      "displayName": "Epic Solution",
+      "displayCollectionName": "Epic Solutions",
+      "description": "Phase 5. The Dataverse solution an epic ships in, one row per deployment stage. Unlinking empties the row; rows are never deleted.",
+      "ownershipType": "UserOwned",
+      "primaryNameSchemaName": "wd_Name",
+      "primaryNameDisplayName": "Epic Solution Name",
+      "primaryNameMaxLength": 100,
+      "fields": [
+        { "schemaName": "wd_Issue", "displayName": "Issue", "type": "lookup", "targetEntity": "wd_issue", "relationshipSchemaName": "wd_issue_epicsolution" },
+        { "schemaName": "wd_Project", "displayName": "Project", "type": "lookup", "targetEntity": "wd_project", "relationshipSchemaName": "wd_project_epicsolution" },
+        {
+          "schemaName": "wd_Stage",
+          "displayName": "Stage",
+          "type": "choice",
+          "options": [
+            { "value": 100000000, "label": "Dev" },
+            { "value": 100000001, "label": "Test" },
+            { "value": 100000002, "label": "Stage" },
+            { "value": 100000003, "label": "Prod" }
+          ]
+        },
+        { "schemaName": "wd_EnvironmentId", "displayName": "Environment Id", "type": "text", "maxLength": 100, "description": "Power Platform environment ID." },
+        { "schemaName": "wd_EnvironmentName", "displayName": "Environment Name", "type": "text", "maxLength": 200 },
+        { "schemaName": "wd_EnvironmentUrl", "displayName": "Environment Url", "type": "text", "maxLength": 400, "description": "Dataverse organisation URL (https origin)." },
+        { "schemaName": "wd_SolutionId", "displayName": "Solution Id", "type": "text", "maxLength": 100, "description": "solutionid in that environment." },
+        { "schemaName": "wd_SolutionUniqueName", "displayName": "Solution Unique Name", "type": "text", "maxLength": 100, "description": "Solution SchemaName (uniquename); used to find the same solution in other stages." },
+        { "schemaName": "wd_SolutionName", "displayName": "Solution Name", "type": "text", "maxLength": 200 },
+        { "schemaName": "wd_SolutionVersion", "displayName": "Solution Version", "type": "text", "maxLength": 50, "description": "Version when linked. The app reads the live version from the environment." },
+        { "schemaName": "wd_SolutionModifiedOn", "displayName": "Solution Modified On", "type": "dateTime", "description": "Solution modified on when linked." }
+      ]
+    }
+  ]
+}

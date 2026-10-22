@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraIssueBeforeupdatePhase4IssuesUpdatePreoperation",
+  "displayName": "Pira · Issue · Before update (Phase 4) — Issues · Update · Pre-operation",
+  "description": "Phase 4. Fix version same project and not archived; Started On stamped once; fix version/estimate history.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_issue",
+    "message": "Update",
+    "stage": "preOperation"
+  },
+  "tables": [
+    "wd_issue",
+    "wd_project",
+    "wd_version",
+    "wd_issuehistory",
+    "wd_worklog"
+  ],
+  "formula": "// Phase 4, kept apart from plug-in 3 (which is close to the 10,000-character limit). Fix version must be an active version of\n// the issue's own project; Started On is stamped the first time the issue enters an in-progress status and can't be edited;\n// Time Spent can't be written directly: any change is replaced by the sum of non-voided work logs (what plug-ins 34-35 write);\n// fix version and estimate changes are written to history in the same transaction.\nWith(\n    {\n        newVersion: LookUp(wd_version, wd_versionid = NewRecord.wd_FixVersion.wd_versionid),\n        versionChanged: NewRecord.wd_FixVersion.wd_versionid <> OldRecord.wd_FixVersion.wd_versionid,\n        toProgress: NewRecord.wd_status <> OldRecord.wd_status && (\n            NewRecord.wd_status = wd_issue_new_wd_issue_wd_status.'100000001' || NewRecord.wd_status = wd_issue_new_wd_issue_wd_status.'100000002' ||\n            NewRecord.wd_status = wd_issue_new_wd_issue_wd_status.'100000005' || NewRecord.wd_status = wd_issue_new_wd_issue_wd_status.'100000006'),\n        oe: OldRecord.wd_originalestimate, ne: NewRecord.wd_originalestimate,\n        orr: OldRecord.wd_remainingestimate, nr: NewRecord.wd_remainingestimate,\n        k: OldRecord.wd_issuekey\n    },\n    If(\n        versionChanged && !IsBlank(NewRecord.wd_FixVersion) && (IsBlank(newVersion) || newVersion.wd_Project.wd_projectid <> OldRecord.wd_Project.wd_projectid),\n            Error({ Kind: ErrorKind.Validation, Message: \"[VERSION_PROJECT_MISMATCH] Only versions from \" & k & \"'s own project can be used.\" }),\n        versionChanged && !IsBlank(newVersion) && newVersion.wd_versionstate = wd_version_new_wd_version_wd_versionstate.'100000002',\n            Error({ Kind: ErrorKind.Validation, Message: \"[VERSION_ARCHIVED] \" & newVersion.wd_name & \" is archived, so issues can't be added to it.\" }),\n        If(toProgress && IsBlank(OldRecord.wd_startedon), Set(NewRecord.wd_startedon, Now()), Set(NewRecord.wd_startedon, OldRecord.wd_startedon));\n        If(Coalesce(NewRecord.wd_timespent, -1) <> Coalesce(OldRecord.wd_timespent, -1),\n            Set(NewRecord.wd_timespent, Sum(Filter(wd_worklog, wd_Issue.wd_issueid = OldRecord.wd_issueid &&\n                wd_voided <> wd_worklog_new_wd_worklog_wd_voided.'1'), wd_minutes)));\n        ForAll(\n            Filter(\n                Table(\n                    { F: \"fixVersion\", O: Coalesce(OldRecord.wd_FixVersion.wd_name, \"None\"), N: Coalesce(newVersion.wd_name, \"None\") },\n                    { F: \"originalEstimate\",\n                      O: If(IsBlank(oe), \"None\", Coalesce(Trim(If(oe >= 2400, Int(oe / 2400) & \"w \") & If(Mod(oe, 2400) >= 480, Int(Mod(oe, 2400) / 480) & \"d \") & If(Mod(oe, 480) >= 60, Int(Mod(oe, 480) / 60) & \"h \") & If(Mod(oe, 60) > 0, Mod(oe, 60) & \"m\")), \"0m\")),\n                      N: If(IsBlank(ne), \"None\", Coalesce(Trim(If(ne >= 2400, Int(ne / 2400) & \"w \") & If(Mod(ne, 2400) >= 480, Int(Mod(ne, 2400) / 480) & \"d \") & If(Mod(ne, 480) >= 60, Int(Mod(ne, 480) / 60) & \"h \") & If(Mod(ne, 60) > 0, Mod(ne, 60) & \"m\")), \"0m\")) },\n                    { F: \"remainingEstimate\",\n                      O: If(IsBlank(orr), \"None\", Coalesce(Trim(If(orr >= 2400, Int(orr / 2400) & \"w \") & If(Mod(orr, 2400) >= 480, Int(Mod(orr, 2400) / 480) & \"d \") & If(Mod(orr, 480) >= 60, Int(Mod(orr, 480) / 60) & \"h \") & If(Mod(orr, 60) > 0, Mod(orr, 60) & \"m\")), \"0m\")),\n                      N: If(IsBlank(nr), \"None\", Coalesce(Trim(If(nr >= 2400, Int(nr / 2400) & \"w \") & If(Mod(nr, 2400) >= 480, Int(Mod(nr, 2400) / 480) & \"d \") & If(Mod(nr, 480) >= 60, Int(Mod(nr, 480) / 60) & \"h \") & If(Mod(nr, 60) > 0, Mod(nr, 60) & \"m\")), \"0m\")) }\n                ),\n                O <> N\n            ),\n            Collect(wd_issuehistory, {\n                wd_name: Left(k & \" \" & F, 100), wd_Issue: LookUp(wd_issue, wd_issueid = OldRecord.wd_issueid),\n                wd_eventtype: wd_issuehistory_new_wd_issuehistory_wd_eventtype.'100000001', wd_fieldname: F,\n                wd_oldvalue: Left(O, 400), wd_newvalue: Left(N, 400), wd_operationname: \"UpdateIssue\"\n            })\n        )\n    )\n)"
+}

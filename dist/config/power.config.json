@@ -1,0 +1,168 @@
+{
+  "appId": "392fc358-83a0-4a44-8c62-ab4e56943fed",
+  "appDisplayName": "Pira",
+  "description": "Pira - a Jira-inspired work management app (projects, issues, Kanban) backed by Dataverse.",
+  "environmentId": "9b45eff8-d905-e28a-918f-2e315619890d",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "logoPath": "./dist/icon-512.png",
+  "localAppUrl": "http://localhost:3000",
+  "region": "prod",
+  "connectionReferences": {
+    "office365users": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_office365users",
+      "displayName": "Office 365 Users",
+      "dataSources": [
+        "office365users"
+      ],
+      "authenticationType": null,
+      "sharedConnectionId": null,
+      "dataSets": {}
+    },
+    "596c1470-7c87-43be-8fd6-f7ffbe22c84b": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_powerplatformadminv2",
+      "displayName": "Power Platform for Admins V2",
+      "dataSources": [
+        "powerplatformadminv2"
+      ],
+      "authenticationType": "oauth2-auth",
+      "dataSets": {}
+    },
+    "6c38d301-ba5b-4a9a-a1fe-483bf28c7b9a": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+      "displayName": "Microsoft Dataverse",
+      "dataSources": [
+        "commondataserviceforapps"
+      ],
+      "dataSets": {}
+    }
+  },
+  "databaseReferences": {
+    "default.cds": {
+      "dataSources": {
+        "projects": {
+          "entitySetName": "wd_projects",
+          "logicalName": "wd_project",
+          "isHidden": false
+        },
+        "projectsequences": {
+          "entitySetName": "wd_projectsequences",
+          "logicalName": "wd_projectsequence",
+          "isHidden": false
+        },
+        "projectmembers": {
+          "entitySetName": "wd_projectmembers",
+          "logicalName": "wd_projectmember",
+          "isHidden": false
+        },
+        "boards": {
+          "entitySetName": "wd_boards",
+          "logicalName": "wd_board",
+          "isHidden": false
+        },
+        "boardcolumns": {
+          "entitySetName": "wd_boardcolumns",
+          "logicalName": "wd_boardcolumn",
+          "isHidden": false
+        },
+        "issues": {
+          "entitySetName": "wd_issues",
+          "logicalName": "wd_issue",
+          "isHidden": false
+        },
+        "issuecomments": {
+          "entitySetName": "wd_issuecomments",
+          "logicalName": "wd_issuecomment",
+          "isHidden": false
+        },
+        "issuehistory": {
+          "entitySetName": "wd_issuehistories",
+          "logicalName": "wd_issuehistory",
+          "isHidden": false
+        },
+        "labels": {
+          "entitySetName": "wd_labels",
+          "logicalName": "wd_label",
+          "isHidden": false
+        },
+        "issuelabels": {
+          "entitySetName": "wd_issuelabels",
+          "logicalName": "wd_issuelabel",
+          "isHidden": false
+        },
+        "users": {
+          "entitySetName": "systemusers",
+          "logicalName": "systemuser",
+          "isHidden": false
+        },
+        "sprints": {
+          "entitySetName": "wd_sprints",
+          "logicalName": "wd_sprint",
+          "isHidden": false
+        },
+        "boardissues": {
+          "entitySetName": "wd_boardissues",
+          "logicalName": "wd_boardissue",
+          "isHidden": false
+        },
+        "issuelinks": {
+          "entitySetName": "wd_issuelinks",
+          "logicalName": "wd_issuelink",
+          "isHidden": false
+        },
+        "workflowtransitions": {
+          "entitySetName": "wd_workflowtransitions",
+          "logicalName": "wd_workflowtransition",
+          "isHidden": false
+        },
+        "savedfilters": {
+          "entitySetName": "wd_savedfilters",
+          "logicalName": "wd_savedfilter",
+          "isHidden": false
+        },
+        "notifications": {
+          "entitySetName": "wd_notifications",
+          "logicalName": "wd_notification",
+          "isHidden": false
+        },
+        "notificationpreferences": {
+          "entitySetName": "wd_notificationpreferences",
+          "logicalName": "wd_notificationpreference",
+          "isHidden": false
+        },
+        "issueattachments": {
+          "entitySetName": "wd_issueattachments",
+          "logicalName": "wd_issueattachment",
+          "isHidden": false
+        },
+        "customfields": {
+          "entitySetName": "wd_customfields",
+          "logicalName": "wd_customfield",
+          "isHidden": false
+        },
+        "customfieldvalues": {
+          "entitySetName": "wd_customfieldvalues",
+          "logicalName": "wd_customfieldvalue",
+          "isHidden": false
+        },
+        "versions": {
+          "entitySetName": "wd_versions",
+          "logicalName": "wd_version",
+          "isHidden": false
+        },
+        "worklogs": {
+          "entitySetName": "wd_worklogs",
+          "logicalName": "wd_worklog",
+          "isHidden": false
+        },
+        "epicsolutions": {
+          "entitySetName": "wd_epicsolutions",
+          "logicalName": "wd_epicsolution",
+          "isHidden": false
+        }
+      },
+      "environmentVariableName": ""
+    }
+  },
+  "version": "1.0"
+}

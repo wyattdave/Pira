@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pira — Mockup 3 · Aurora Glass</title>
+<style>
+:root{
+  --ink:#101216;--glass:rgba(32,36,44,.55);--glass-2:rgba(40,45,55,.7);--edge:rgba(255,255,255,.08);--edge-2:rgba(255,255,255,.14);
+  --text:#eef1f6;--muted:#9aa3b2;--faint:#677083;
+  --cyan:#00e5ff;--cyan-ink:#00232a;--aqua:#2ff5d2;
+  --story:#3ddc97;--bug:#ff5c7a;--task:#4aa3ff;--epic:#b38bff;
+  --serif:"Sitka Display","Sitka Heading","Sitka Banner",Georgia,serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",sans-serif;
+  --mono:"Cascadia Code","Cascadia Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{color:var(--text);font:14px/1.5 var(--sans);background:var(--ink);overflow:hidden}
+.aurora{position:fixed;inset:-20%;z-index:0;background:
+  radial-gradient(40% 35% at 18% 12%,rgba(0,229,255,.22),transparent 70%),
+  radial-gradient(35% 40% at 85% 20%,rgba(0,119,255,.18),transparent 70%),
+  radial-gradient(45% 40% at 60% 95%,rgba(47,245,210,.10),transparent 70%),
+  #121418;filter:saturate(120%);animation:drift 26s ease-in-out infinite alternate}
+.grain{position:fixed;inset:0;z-index:0;opacity:.05;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes drift{to{transform:translate3d(3%,2%,0) rotate(2deg)}}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.glass{background:var(--glass);border:1px solid var(--edge);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+
+.page{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;padding:14px 18px 0}
+.top{display:flex;align-items:center;gap:14px;padding:8px 10px 8px 14px;border-radius:16px}
+.brand{display:flex;align-items:center;gap:10px;font:600 21px var(--serif);letter-spacing:.01em}
+.brand i{font-style:normal;color:var(--cyan)}
+.top nav{display:flex;gap:2px;margin-left:12px}
+.top nav button{padding:7px 12px;border-radius:10px;color:var(--muted)}
+.top nav button:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.top nav button.on{color:var(--text);background:rgba(255,255,255,.07)}
+.spacer{flex:1}
+.omni{display:flex;align-items:center;gap:8px;height:36px;width:300px;padding:0 12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--edge);color:var(--muted)}
+.omni:focus-within{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,255,.15)}
+.omni input{background:none;border:0;outline:none;width:100%;color:var(--text)}
+.create{height:36px;padding:0 16px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--aqua));color:var(--cyan-ink);font-weight:700;box-shadow:0 8px 24px rgba(0,229,255,.28)}
+.create:hover{filter:brightness(1.08)}
+.av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font:700 10.5px var(--sans);color:#0b0d10;background:var(--c);flex:none;box-shadow:0 0 0 2px rgba(16,18,22,.8)}
+.av.sm{width:22px;height:22px;font-size:9px}
+.av.none{background:rgba(255,255,255,.06);color:var(--faint);border:1px dashed var(--edge-2);box-shadow:none}
+
+.hero{display:flex;align-items:flex-end;gap:18px;padding:26px 8px 0}
+.p-mark{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(140deg,rgba(0,229,255,.9),rgba(0,119,255,.9));color:#03161b;font:700 18px var(--mono);box-shadow:0 14px 30px rgba(0,229,255,.25)}
+.hero h1{font:600 38px/1 var(--serif);letter-spacing:-.01em}
+.hero p{color:var(--muted);margin-top:6px}
+.hero .k{font:500 12px var(--mono);color:var(--cyan);border:1px solid rgba(0,229,255,.35);padding:1px 7px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.members{display:flex;margin-left:auto}
+.members .av{margin-left:-6px}
+.tabs{display:flex;gap:4px;margin:18px 8px 0;border-bottom:1px solid var(--edge)}
+.tabs button{position:relative;padding:10px 14px;color:var(--muted);font-weight:500}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected="true"]{color:var(--text)}
+.tabs button[aria-selected="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.view{flex:1;overflow:auto;padding:18px 8px 90px}
+.view[hidden]{display:none}
+
+/* summary */
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{border-radius:18px;padding:16px 18px}
+.kpi small{color:var(--muted)}
+.kpi b{display:block;font:600 34px/1.1 var(--serif);margin-top:4px}
+.kpi span{font-size:12px;color:var(--aqua)}
+.panels{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;margin-top:14px}
+.panel{border-radius:18px;padding:18px}
+.panel h3{font:600 18px var(--serif);margin-bottom:12px}
+.donut{display:flex;align-items:center;gap:22px}
+.ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;position:relative}
+.ring::after{content:"";position:absolute;inset:22px;border-radius:50%;background:#1a1d23}
+.ring b{position:relative;z-index:1;font:600 30px var(--serif);text-align:center;line-height:1}
+.ring b small{display:block;font:12px var(--sans);color:var(--muted)}
+.legend{display:grid;gap:8px}
+.legend div{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.legend i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.legend b{color:var(--text);margin-left:auto;font-weight:600;padding-left:16px}
+.hbar{display:grid;gap:10px}
+.hbar div{display:grid;grid-template-columns:80px 1fr 28px;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.hbar s{display:block;height:8px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden;text-decoration:none}
+.hbar s i{display:block;height:100%;border-radius:8px;background:var(--c)}
+.feed{display:grid;gap:12px}
+.feed div{display:flex;gap:10px;font-size:13px;color:var(--muted)}
+.feed b{color:var(--text);font-weight:600}
+.feed .k{font:500 12px var(--mono);color:var(--cyan)}
+
+/* board */
+.board{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:14px;align-items:start}
+.col{border-radius:18px;padding:10px;min-height:300px;transition:.15s}
+.col.drop{border-color:rgba(0,229,255,.6);box-shadow:0 0 0 3px rgba(0,229,255,.12)}
+.col-h{display:flex;align-items:center;gap:8px;padding:6px 8px 12px;font-weight:600}
+.col-h .dot{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+.col-h .n{color:var(--faint);font:500 12px var(--mono);margin-left:auto}
+.cards{display:grid;gap:8px}
+.card{border-radius:14px;padding:12px 14px;background:var(--glass-2);border:1px solid var(--edge);cursor:pointer;transition:.16s;animation:fade .4s ease both}
+.card:hover{border-color:var(--edge-2);transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.card:focus-visible{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,255,.2)}
+.card p{margin-bottom:12px;line-height:1.4}
+.ln{display:flex;align-items:center;gap:7px;color:var(--muted)}
+.ln .k{font:500 11.5px var(--mono)}
+.ln .spacer{flex:1}
+.pill{font-size:11px;padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--muted)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+
+/* list */
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden}
+th{text-align:left;font:600 12px var(--sans);color:var(--muted);padding:10px 14px;background:rgba(0,0,0,.2);border-bottom:1px solid var(--edge)}
+td{padding:10px 14px;border-bottom:1px solid var(--edge)}
+tr:hover td{background:rgba(255,255,255,.03);cursor:pointer}
+td .k{font:500 12px var(--mono);color:var(--cyan)}
+.badge{font:600 11px var(--sans);padding:2px 8px;border-radius:999px;letter-spacing:.03em;text-transform:uppercase}
+.b-todo{background:rgba(255,255,255,.08);color:#c9d0db}.b-progress{background:rgba(0,229,255,.15);color:var(--cyan)}.b-review{background:rgba(179,139,255,.18);color:var(--epic)}.b-done{background:rgba(61,220,151,.15);color:var(--story)}
+
+/* drawer */
+.drawer{position:fixed;top:14px;right:14px;bottom:14px;width:min(520px,calc(100% - 28px));border-radius:22px;z-index:30;transform:translateX(calc(100% + 30px));transition:transform .3s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;background:rgba(26,29,36,.82);box-shadow:-30px 0 80px rgba(0,0,0,.5)}
+.drawer.open{transform:none}
+.d-h{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--edge)}
+.d-h .k{font:500 13px var(--mono);color:var(--cyan)}
+.ib{width:32px;height:32px;border-radius:10px;color:var(--muted)}.ib:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.d-b{padding:20px 22px 30px;overflow:auto}
+.d-b h2{font:600 26px/1.2 var(--serif);margin-bottom:14px}
+.steps{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.steps button{padding:6px 12px;border-radius:999px;border:1px solid var(--edge-2);color:var(--muted);font-size:12.5px}
+.steps button[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink);font-weight:700}
+.steps button:hover{color:var(--text)}
+.d-sec{font:600 15px var(--serif);margin:22px 0 10px}
+.d-grid{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:13.5px}
+.d-grid dt{color:var(--muted)}
+.d-grid dd{display:flex;gap:8px;align-items:center}
+.cm{display:flex;gap:10px;margin-top:12px}
+.cm .bub{flex:1;border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid var(--edge)}
+.cm small{color:var(--faint)}
+.cm.sys .bub{background:none;border:0;padding:4px 0;color:var(--muted)}
+.inp{width:100%;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--edge-2);outline:none;color:var(--text)}
+.inp:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,255,.15)}
+
+/* bottom sheet create */
+.veil{position:fixed;inset:0;z-index:40;background:rgba(5,6,9,.5);opacity:0;pointer-events:none;transition:.2s}
+.veil.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:min(720px,100%);transform:translate(-50%,105%);z-index:41;border-radius:24px 24px 0 0;padding:10px 26px 26px;transition:transform .3s cubic-bezier(.2,.8,.2,1);background:rgba(26,29,36,.9)}
+.sheet.open{transform:translate(-50%,0)}
+.grab{width:44px;height:5px;border-radius:5px;background:var(--edge-2);margin:0 auto 14px}
+.sheet h2{font:600 24px var(--serif);margin-bottom:16px}
+.sheet form{display:grid;gap:14px}
+.sheet label{display:grid;gap:6px;color:var(--muted);font-size:13px}
+.types{display:flex;gap:8px}
+.types label{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;border:1px solid var(--edge-2);cursor:pointer;color:var(--text)}
+.types input{accent-color:var(--cyan)}
+.types label:has(input:checked){border-color:var(--cyan);background:rgba(0,229,255,.08)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.acts{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+.ghost{padding:8px 16px;border-radius:12px;border:1px solid var(--edge-2)}
+.err{color:var(--bug);font-size:12px}
+
+.toast{position:fixed;left:50%;top:20px;transform:translate(-50%,-30px);opacity:0;transition:.25s;z-index:60;border-radius:14px;padding:10px 16px}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.mock-pill{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:4px;padding:5px;border-radius:999px;z-index:100;background:rgba(20,22,27,.75);border:1px solid var(--edge-2);backdrop-filter:blur(10px)}
+.mock-pill a{min-width:30px;height:30px;padding:0 10px;border-radius:999px;display:grid;place-items:center;color:var(--muted);text-decoration:none;font:600 12px var(--mono)}
+.mock-pill a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.mock-pill a.on{background:var(--cyan);color:var(--cyan-ink)}
+.mock-pill span{padding:0 10px 0 8px;display:grid;place-items:center;color:var(--faint);font-size:12px}
+@media (max-width:1100px){.sum{grid-template-columns:repeat(2,1fr)}.panels{grid-template-columns:1fr}.top nav{display:none}.board{grid-template-columns:repeat(4,250px)}.omni{width:200px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="aurora"></div><div class="grain"></div>
+<div class="page">
+  <header class="top glass">
+    <div class="brand"><svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ff5d2"/><stop offset="1" stop-color="#00a2ff"/></linearGradient></defs><path d="M13 1.5 24.5 13 13 24.5 1.5 13Z" fill="url(#g3)"/><path d="M10.2 7.8h4a3.4 3.4 0 0 1 0 6.8h-1.7V18h-2.3z" fill="#0c0f13"/></svg><span>Pi<i>ra</i></span></div>
+    <nav aria-label="Primary"><button>Your work</button><button class="on">Projects</button><button>Filters</button><button>Dashboards</button></nav>
+    <div class="spacer"></div>
+    <label class="omni"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="m11 11 4 4"/></svg><span class="sr">Search</span><input id="q" placeholder="Search PIRA issues…"></label>
+    <button class="create" id="openCreate">Create</button>
+    <span class="av" style="--c:#00e5ff">DW</span>
+  </header>
+
+  <section class="hero">
+    <div class="p-mark">PI</div>
+    <div><h1>Pira Platform <span class="k">PIRA</span></h1><p>Kanban project · Lead: Alex Morgan · Active</p></div>
+    <div class="members" id="members" aria-label="Members"></div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="Project views">
+    <button role="tab" aria-selected="true" data-v="summary">Summary</button>
+    <button role="tab" aria-selected="false" data-v="board">Board</button>
+    <button role="tab" aria-selected="false" data-v="list">List</button>
+    <button role="tab" aria-selected="false" data-v="settings">Settings</button>
+  </div>
+
+  <section class="view" id="v-summary" role="tabpanel">
+    <div class="sum">
+      <div class="kpi glass"><small>Created · last 7 days</small><b id="kCreated">9</b><span>+3 vs previous week</span></div>
+      <div class="kpi glass"><small>Completed · last 7 days</small><b id="kDone">2</b><span>On track</span></div>
+      <div class="kpi glass"><small>Due soon</small><b>3</b><span style="color:#ffb547">1 overdue</span></div>
+      <div class="kpi glass"><small>Unassigned</small><b id="kUn">1</b><span>Needs triage</span></div>
+    </div>
+    <div class="panels">
+      <div class="panel glass"><h3>Status overview</h3><div class="donut"><div class="ring" id="ring"><b id="ringN"></b></div><div class="legend" id="legend"></div></div></div>
+      <div class="panel glass"><h3>Workload by assignee</h3><div class="hbar" id="load"></div></div>
+      <div class="panel glass"><h3>Recent activity</h3><div class="feed" id="feed"></div></div>
+    </div>
+  </section>
+  <section class="view" id="v-board" role="tabpanel" hidden><div class="board" id="board"></div></section>
+  <section class="view" id="v-list" role="tabpanel" hidden><table class="glass"><thead><tr><th>Type</th><th>Key</th><th>Summary</th><th>Status</th><th>Assignee</th><th>Priority</th></tr></thead><tbody id="rows"></tbody></table></section>
+  <section class="view" id="v-settings" role="tabpanel" hidden><div class="panel glass" style="max-width:640px"><h3>Project details</h3><div class="d-grid" style="margin-top:10px"><dt>Name</dt><dd><input class="inp" value="Pira Platform"></dd><dt>Key</dt><dd><input class="inp" value="PIRA" disabled title="Key is locked once issues exist"></dd><dt>Lead</dt><dd><span class="av sm" style="--c:#00e5ff">AM</span> Alex Morgan</dd><dt>Columns</dt><dd>To Do → In Progress → In Review → Done</dd></div></div></section>
+</div>
+
+<aside class="drawer glass" id="drawer" aria-label="Issue details" aria-hidden="true"><div class="d-h"><span id="dIcon"></span><span class="k" id="dKey"></span><button class="ib" id="copy" aria-label="Copy key">⧉</button><span class="spacer"></span><button class="ib" aria-label="Watch">☆</button><button class="ib" id="closeD" aria-label="Close">✕</button></div><div class="d-b" id="dBody"></div></aside>
+
+<div class="veil" id="veil"></div>
+<div class="sheet glass" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sTitle" aria-hidden="true">
+  <div class="grab"></div><h2 id="sTitle">New issue in Pira Platform</h2>
+  <form id="cForm" novalidate>
+    <div class="types" role="radiogroup" aria-label="Issue type"><label><input type="radio" name="t" value="task" checked>Task</label><label><input type="radio" name="t" value="story">Story</label><label><input type="radio" name="t" value="bug">Bug</label><label><input type="radio" name="t" value="epic">Epic</label></div>
+    <label>Summary<input class="inp" id="cS" maxlength="255" autocomplete="off" placeholder="What needs to be done?"><span class="err" id="cE" hidden>Give the issue a summary.</span></label>
+    <div class="two"><label>Assignee<select class="inp" id="cA"></select></label><label>Priority<select class="inp" id="cP"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></label></div>
+    <div class="acts"><button type="button" class="ghost" id="cCancel">Cancel</button><button type="submit" class="create">Create issue</button></div>
+  </form>
+</div>
+<div class="toast glass" id="toast" role="status" aria-live="polite"></div>
+<nav class="mock-pill" aria-label="Mockups"><span>Pira mockups</span><a href="mockup-1.html">1</a><a href="mockup-2.html">2</a><a class="on" href="mockup-3.html">3</a><a href="mockup-4.html">4</a><a href="mockup-5.html">5</a></nav>
+
+<script>
+const people={AM:{n:'Alex Morgan',c:'#00e5ff'},PS:{n:'Priya Shah',c:'#ff9f6e'},JL:{n:'Jordan Lee',c:'#b38bff'},SO:{n:'Sam Ortiz',c:'#3ddc97'},RK:{n:'Riley Kim',c:'#ffd166'}};
+const cols=[{id:'todo',n:'To Do',c:'#9aa3b2'},{id:'progress',n:'In Progress',c:'#00e5ff'},{id:'review',n:'In Review',c:'#b38bff'},{id:'done',n:'Done',c:'#3ddc97'}];
+const hex={story:'#3ddc97',bug:'#ff5c7a',task:'#4aa3ff',epic:'#b38bff'};
+let issues=[
+ {k:'PIRA-101',s:'Allocate issue keys server-side with a sequence table',t:'story',p:'high',a:'AM',st:'todo',r:'PS'},
+ {k:'PIRA-102',s:'Board drag-and-drop loses rank after refresh',t:'bug',p:'highest',a:'PS',st:'progress',r:'JL'},
+ {k:'PIRA-103',s:'Comment composer supports @mentions',t:'story',p:'medium',a:'JL',st:'progress',r:'AM'},
+ {k:'PIRA-104',s:'My Work overdue tab shows resolved issues',t:'bug',p:'high',a:'SO',st:'review',r:'RK'},
+ {k:'PIRA-105',s:'Project settings — member roles',t:'task',p:'medium',a:'AM',st:'todo',r:'AM'},
+ {k:'PIRA-106',s:'Issue history timeline',t:'task',p:'low',a:'RK',st:'done',r:'SO'},
+ {k:'PIRA-107',s:'Phase 1 — Foundation & issue tracker',t:'epic',p:'medium',a:'AM',st:'progress',r:'AM'},
+ {k:'PIRA-108',s:'Keyboard shortcuts: C to create, / to search',t:'task',p:'lowest',a:'PS',st:'todo',r:'JL'},
+ {k:'PIRA-109',s:'Archive projects instead of deleting them',t:'story',p:'medium',a:null,st:'review',r:'PS'},
+ {k:'PIRA-110',s:'Search by key and summary with paging',t:'story',p:'high',a:'JL',st:'done',r:'AM'},
+ {k:'PIRA-111',s:'Empty and error states for the board',t:'task',p:'low',a:'SO',st:'todo',r:'RK'},
+ {k:'PIRA-112',s:'Status change writes a history event',t:'bug',p:'medium',a:'RK',st:'progress',r:'PS'}
+];
+let seq=112,q='',acts=[{w:'PS',v:'commented on',k:'PIRA-102',t:'2h'},{w:'JL',v:'moved to Done',k:'PIRA-110',t:'5h'},{w:'RK',v:'created',k:'PIRA-112',t:'1d'},{w:'AM',v:'assigned',k:'PIRA-105',t:'2d'}];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ti=(t,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 16 16" role="img" aria-label="${t}"><rect width="16" height="16" rx="4" fill="${hex[t]}"/></svg>`;
+const pri={highest:['#ff5c5c','M3 9l5-4 5 4M3 13l5-4 5 4'],high:['#ff8a4c','M3 11l5-5 5 5'],medium:['#ffb547','M3 6h10M3 10h10'],low:['#4aa3ff','M3 5l5 5 5-5'],lowest:['#4aa3ff','M3 3l5 4 5-4M3 7l5 4 5-4']};
+const pi=p=>`<svg width="16" height="16" viewBox="0 0 16 16" role="img" aria-label="${p} priority"><path d="${pri[p][1]}" stroke="${pri[p][0]}" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const av=(id,c='sm')=>id?`<span class="av ${c}" style="--c:${people[id].c}" title="${people[id].n}">${id}</span>`:`<span class="av none ${c}">?</span>`;
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const vis=()=>issues.filter(i=>!q||i.k.toLowerCase().includes(q)||i.s.toLowerCase().includes(q));
+
+function summary(){
+  const n=issues.length,counts=cols.map(c=>issues.filter(i=>i.st===c.id).length);
+  let a=0;$('#ring').style.background='conic-gradient('+cols.map((c,ix)=>{const s=a;a+=counts[ix]/n*360;return `${c.c} ${s}deg ${a}deg`}).join(',')+')';
+  $('#ringN').innerHTML=`${n}<small>issues</small>`;
+  $('#legend').innerHTML=cols.map((c,ix)=>`<div><i style="--c:${c.c}"></i>${c.n}<b>${counts[ix]}</b></div>`).join('');
+  const max=Math.max(...Object.keys(people).map(p=>issues.filter(i=>i.a===p).length));
+  $('#load').innerHTML=Object.keys(people).map(p=>{const c=issues.filter(i=>i.a===p).length;return `<div><span>${people[p].n.split(' ')[0]}</span><s><i style="width:${c/max*100}%;--c:${people[p].c};background:${people[p].c}"></i></s><b>${c}</b></div>`}).join('');
+  $('#feed').innerHTML=acts.slice(0,6).map(x=>`<div>${av(x.w)}<span><b>${people[x.w].n}</b> ${x.v} <span class="k">${x.k}</span><br><small>${x.t} ago</small></span></div>`).join('');
+  $('#kUn').textContent=issues.filter(i=>!i.a).length;$('#kDone').textContent=issues.filter(i=>i.st==='done').length;
+  $('#members').innerHTML=Object.keys(people).map(p=>av(p,'')).join('');
+}
+function board(){
+  $('#board').innerHTML=cols.map(c=>{const l=vis().filter(i=>i.st===c.id);return `<section class="col glass" data-col="${c.id}" aria-label="${c.n}"><div class="col-h"><span class="dot" style="--c:${c.c}"></span>${c.n}<span class="n">${l.length}</span></div><div class="cards">${l.map((i,ix)=>`<article class="card" tabindex="0" draggable="true" data-k="${i.k}" style="animation-delay:${ix*40}ms"><p>${esc(i.s)}</p><div class="ln">${ti(i.t)}<span class="k">${i.k}</span><span class="spacer"></span>${pi(i.p)}${av(i.a)}</div></article>`).join('')||'<p style="color:var(--faint);text-align:center;padding:30px 0">Nothing here</p>'}</div></section>`}).join('');
+  document.querySelectorAll('.card').forEach(el=>{el.onclick=()=>open(el.dataset.k);el.onkeydown=e=>{if(e.key==='Enter')open(el.dataset.k)};el.ondragstart=e=>e.dataTransfer.setData('text',el.dataset.k)});
+  document.querySelectorAll('.col').forEach(c=>{c.ondragover=e=>{e.preventDefault();c.classList.add('drop')};c.ondragleave=()=>c.classList.remove('drop');c.ondrop=e=>{e.preventDefault();c.classList.remove('drop');setStatus(e.dataTransfer.getData('text'),c.dataset.col)}});
+}
+function list(){
+  $('#rows').innerHTML=vis().map(i=>`<tr data-k="${i.k}" tabindex="0"><td>${ti(i.t)}</td><td><span class="k">${i.k}</span></td><td>${esc(i.s)}</td><td><span class="badge b-${i.st}">${cols.find(c=>c.id===i.st).n}</span></td><td>${av(i.a)} ${i.a?people[i.a].n:'Unassigned'}</td><td>${pi(i.p)}</td></tr>`).join('');
+  document.querySelectorAll('#rows tr').forEach(r=>{r.onclick=()=>open(r.dataset.k);r.onkeydown=e=>{if(e.key==='Enter')open(r.dataset.k)}});
+}
+function all(){summary();board();list()}
+function setStatus(k,st){const i=issues.find(x=>x.k===k);if(!i||i.st===st)return;const from=cols.find(c=>c.id===i.st).n;i.st=st;(i.h=i.h||[]).unshift(`${from} → ${cols.find(c=>c.id===st).n}`);acts.unshift({w:'AM',v:'moved to '+cols.find(c=>c.id===st).n,k,t:'now'});all();if($('#drawer').classList.contains('open')&&$('#dKey').textContent===k)open(k);toast(`${k} → ${cols.find(c=>c.id===st).n}`)}
+function open(k){
+  const i=issues.find(x=>x.k===k);$('#dIcon').innerHTML=ti(i.t,18);$('#dKey').textContent=k;
+  $('#dBody').innerHTML=`<h2>${esc(i.s)}</h2><div class="steps" role="group" aria-label="Status">${cols.map(c=>`<button aria-pressed="${c.id===i.st}" data-st="${c.id}">${c.n}</button>`).join('')}</div>
+  <dl class="d-grid"><dt>Assignee</dt><dd>${av(i.a)} ${i.a?people[i.a].n:'Unassigned'}</dd><dt>Reporter</dt><dd>${av(i.r)} ${people[i.r].n}</dd><dt>Priority</dt><dd>${pi(i.p)} ${cap(i.p)}</dd><dt>Type</dt><dd>${ti(i.t)} ${cap(i.t)}</dd><dt>Due</dt><dd>Tue 21 Oct</dd><dt>Parent</dt><dd><span style="font:500 12px var(--mono);color:var(--cyan)">PIRA-107</span></dd></dl>
+  <div class="d-sec">Description</div><p style="color:#cfd5df">Make this behave reliably so the team never needs to fall back to a spreadsheet. Include empty, loading and error states.</p>
+  <div class="d-sec">Activity</div><textarea class="inp" id="cmt" rows="2" placeholder="Write a comment… Enter to post"></textarea>
+  ${(i.c||[]).map(c=>`<div class="cm">${av('AM','')}<div class="bub"><b>Alex Morgan</b> <small>now</small><div>${esc(c)}</div></div></div>`).join('')}
+  ${(i.h||[]).map(h=>`<div class="cm sys">${av('AM','')}<div class="bub"><b style="color:var(--text)">You</b> changed status ${h}</div></div>`).join('')}
+  <div class="cm">${av('PS','')}<div class="bub"><b>Priya Shah</b> <small>2 hours ago</small><div>Can we pair on this tomorrow?</div></div></div>
+  <div class="cm sys">${av(i.r,'')}<div class="bub">${people[i.r].n} created this issue · 3 days ago</div></div>`;
+  document.querySelectorAll('.steps button').forEach(b=>b.onclick=()=>setStatus(k,b.dataset.st));
+  $('#cmt').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&e.target.value.trim()){e.preventDefault();(i.c=i.c||[]).unshift(e.target.value.trim());open(k)}};
+  $('#drawer').classList.add('open');$('#drawer').setAttribute('aria-hidden','false');
+}
+function closeD(){$('#drawer').classList.remove('open');$('#drawer').setAttribute('aria-hidden','true')}
+function openSheet(){$('#cA').innerHTML='<option value="">Unassigned</option>'+Object.entries(people).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');$('#veil').classList.add('open');$('#sheet').classList.add('open');$('#sheet').setAttribute('aria-hidden','false');setTimeout(()=>$('#cS').focus(),200)}
+function closeSheet(){$('#veil').classList.remove('open');$('#sheet').classList.remove('open');$('#sheet').setAttribute('aria-hidden','true');$('#cForm').reset();$('#cE').hidden=true}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2000)}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='v-'+b.dataset.v)});
+$('#q').oninput=e=>{q=e.target.value.toLowerCase();board();list();if(q&&!$('#v-summary').hidden)document.querySelector('[data-v="list"]').click()};
+$('#openCreate').onclick=openSheet;$('#cCancel').onclick=closeSheet;$('#veil').onclick=closeSheet;$('#closeD').onclick=closeD;
+$('#copy').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText($('#dKey').textContent);toast('Copied '+$('#dKey').textContent)};
+$('#cForm').onsubmit=e=>{e.preventDefault();const s=$('#cS').value.trim();if(!s){$('#cE').hidden=false;$('#cS').focus();return}const k='PIRA-'+(++seq);issues.unshift({k,s,t:document.querySelector('[name=t]:checked').value,p:$('#cP').value,a:$('#cA').value||null,st:'todo',r:'AM'});acts.unshift({w:'AM',v:'created',k,t:'now'});closeSheet();all();toast(k+' created')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSheet();closeD()}if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;if(e.key==='c'){e.preventDefault();openSheet()}if(e.key==='/'){e.preventDefault();$('#q').focus()}});
+all();
+</script>
+</body>
+</html>

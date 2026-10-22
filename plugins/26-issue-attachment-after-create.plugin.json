@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraIssueAttachmentAftercreateIssueAttachmentsCreatePostoperation",
+  "displayName": "Pira · Issue Attachment · After create — Issue Attachments · Create · Post-operation",
+  "description": "Phase 3. Issue exists and isn't archived; uploader is a lead/contributor.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_issueattachment",
+    "message": "Create",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_issueattachment",
+    "wd_issue",
+    "wd_projectmember",
+    "wd_project",
+    "systemuser"
+  ],
+  "formula": "// Phase 3. The file is uploaded by a second request (an update of the File column), which only the uploader can make\n// because the security role grants Write at User level on Issue Attachments.\nWith(\n    { saved: LookUp(wd_issueattachment, wd_issueattachmentid = NewRecord.wd_issueattachmentid) },\n    With(\n        { thisIssue: LookUp(wd_issue, wd_issueid = saved.wd_Issue.wd_issueid) },\n        If(\n            IsBlank(thisIssue),\n                Error({ Kind: ErrorKind.Validation, Message: \"[ISSUE_NOT_FOUND] That issue could not be found.\" }),\n            thisIssue.wd_archived = wd_issue_new_wd_issue_wd_archived.'1',\n                Error({ Kind: ErrorKind.Validation, Message: \"[ISSUE_ARCHIVED] \" & thisIssue.wd_issuekey & \" is archived and read-only.\" }),\n            IsBlank(LookUp(wd_projectmember,\n                wd_Project.wd_projectid = thisIssue.wd_Project.wd_projectid &&\n                wd_User.systemuserid = saved.createdby.systemuserid &&\n                wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000' &&\n                wd_projectrole <> wd_projectmember_new_wd_projectmember_wd_projectrole.'100000002')),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only leads and contributors can attach files.\" })\n        )\n    )\n)"
+}

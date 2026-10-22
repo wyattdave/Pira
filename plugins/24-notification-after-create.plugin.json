@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraNotificationAftercreateNotificationsCreatePostoperation",
+  "displayName": "Pira · Notification · After create — Notifications · Create · Post-operation",
+  "description": "Phase 3. Recipient is an active project member; not the sender; sender is a lead/contributor; starts unread and pending.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_notification",
+    "message": "Create",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_notification",
+    "wd_issue",
+    "wd_projectmember",
+    "wd_project",
+    "systemuser"
+  ],
+  "formula": "// Phase 3. Notifications only go to members of the project, never to the sender, and carry no issue summary.\nWith(\n    { saved: LookUp(wd_notification, wd_notificationid = NewRecord.wd_notificationid) },\n    With(\n        { thisIssue: LookUp(wd_issue, wd_issueid = saved.wd_Issue.wd_issueid) },\n        If(\n            IsBlank(saved.wd_Recipient) || IsBlank(saved.wd_Project),\n                Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] A notification needs a recipient and a project.\" }),\n            !IsBlank(saved.wd_Issue) && (IsBlank(thisIssue) || thisIssue.wd_Project.wd_projectid <> saved.wd_Project.wd_projectid),\n                Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] The issue must belong to the notification's project.\" }),\n            saved.wd_Recipient.systemuserid = saved.createdby.systemuserid,\n                Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] People aren't notified about their own changes.\" }),\n            IsBlank(LookUp(wd_projectmember,\n                wd_Project.wd_projectid = saved.wd_Project.wd_projectid && wd_User.systemuserid = saved.wd_Recipient.systemuserid &&\n                wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000')),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only project members can be notified about its issues.\" }),\n            IsBlank(LookUp(wd_projectmember,\n                wd_Project.wd_projectid = saved.wd_Project.wd_projectid && wd_User.systemuserid = saved.createdby.systemuserid &&\n                wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000' &&\n                wd_projectrole <> wd_projectmember_new_wd_projectmember_wd_projectrole.'100000002')),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only leads and contributors send project notifications.\" }),\n            saved.wd_isread = wd_notification_new_wd_notification_wd_isread.'1' ||\n                saved.wd_deliverystate <> wd_notification_new_wd_notification_wd_deliverystate.'100000000',\n                Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] New notifications start unread and pending.\" })\n        )\n    )\n)"
+}

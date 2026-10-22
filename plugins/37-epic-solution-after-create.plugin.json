@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraEpicSolutionAftercreateEpicSolutionsCreatePostoperation",
+  "displayName": "Pira · Epic Solution · After create — Epic Solutions · Create · Post-operation",
+  "description": "Phase 5. Epic only, same project, one row per stage, valid Dataverse host/solution, lead/contributor; history.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_epicsolution",
+    "message": "Create",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_epicsolution",
+    "wd_issue",
+    "wd_project",
+    "wd_projectmember",
+    "wd_issuehistory",
+    "systemuser"
+  ],
+  "formula": "// Phase 5. A new Epic Solution row belongs to an unarchived epic in its own active project, is the only row for that epic and\n// stage, links a complete solution from an https Dataverse host (or nothing), and was created by a lead or contributor.\n// The link is written to the epic's history in the same transaction.\nWith(\n    { saved: LookUp(wd_epicsolution, wd_epicsolutionid = NewRecord.wd_epicsolutionid) },\n    With(\n        {\n            thisIssue: LookUp(wd_issue, wd_issueid = saved.wd_Issue.wd_issueid),\n            sk: If(saved.wd_stage = wd_epicsolution_new_wd_epicsolution_wd_stage.'100000000', \"dev\",\n                saved.wd_stage = wd_epicsolution_new_wd_epicsolution_wd_stage.'100000001', \"test\",\n                saved.wd_stage = wd_epicsolution_new_wd_epicsolution_wd_stage.'100000002', \"stage\", \"prod\"),\n            linked: !IsBlank(saved.wd_solutionid)\n        },\n        If(\n            IsBlank(thisIssue) || saved.wd_Project.wd_projectid <> thisIssue.wd_Project.wd_projectid,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_EPIC_SOLUTION] A solution link must belong to an epic in its own project.\" }),\n            thisIssue.wd_issuetype <> wd_issue_new_wd_issue_wd_issuetype.'100000003',\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_EPIC_SOLUTION] Only epics link solutions.\" }),\n            thisIssue.wd_archived = wd_issue_new_wd_issue_wd_archived.'1',\n                Error({ Kind: ErrorKind.Validation, Message: \"[ISSUE_ARCHIVED] \" & thisIssue.wd_issuekey & \" is archived and read-only.\" }),\n            LookUp(wd_project, wd_projectid = thisIssue.wd_Project.wd_projectid).wd_state = wd_project_new_wd_project_wd_state.'100000001',\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ARCHIVED] The project is archived. Restore it before changing solutions.\" }),\n            IsBlank(saved.wd_stage),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_EPIC_SOLUTION] Choose a stage.\" }),\n            CountRows(Filter(wd_epicsolution, wd_Issue.wd_issueid = thisIssue.wd_issueid && wd_stage = saved.wd_stage)) > 1,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_EPIC_SOLUTION] \" & thisIssue.wd_issuekey & \" already has a row for that stage.\" }),\n            linked <> !IsBlank(saved.wd_environmentid) || linked <> !IsBlank(saved.wd_solutionuniquename) || linked <> !IsBlank(saved.wd_environmenturl),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_EPIC_SOLUTION] Choose both an environment and a solution.\" }),\n            linked && (\n                !IsMatch(saved.wd_environmenturl, \"https://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.(dynamics\\.com|dynamics\\.cn|microsoftdynamics\\.us|appsplatform\\.us|microsoftdynamics\\.de)\") ||\n                !IsMatch(saved.wd_solutionid, \"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\") ||\n                !IsMatch(saved.wd_environmentid, \"[A-Za-z0-9-]{1,100}\") ||\n                !IsMatch(saved.wd_solutionuniquename, \"[A-Za-z_][A-Za-z0-9_]{0,99}\")),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_EPIC_SOLUTION] The environment or solution details aren't valid.\" }),\n            IsBlank(LookUp(wd_projectmember,\n                wd_Project.wd_projectid = thisIssue.wd_Project.wd_projectid &&\n                wd_User.systemuserid = saved.createdby.systemuserid &&\n                wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000' &&\n                wd_projectrole <> wd_projectmember_new_wd_projectmember_wd_projectrole.'100000002')),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only leads and contributors can change an epic's solutions.\" }),\n            linked,\n                Collect(wd_issuehistory, {\n                    wd_name: Left(thisIssue.wd_issuekey & \" solution:\" & sk, 100), wd_Issue: thisIssue,\n                    wd_eventtype: wd_issuehistory_new_wd_issuehistory_wd_eventtype.'100000001', wd_fieldname: \"solution:\" & sk, wd_oldvalue: \"None\",\n                    wd_newvalue: Left(Coalesce(saved.wd_solutionname, saved.wd_solutionuniquename) & If(!IsBlank(saved.wd_solutionversion), \" \" & saved.wd_solutionversion) &\n                        \" in \" & Coalesce(saved.wd_environmentname, \"environment\"), 400),\n                    wd_operationname: \"LinkSolution\"\n                })\n        )\n    )\n)"
+}

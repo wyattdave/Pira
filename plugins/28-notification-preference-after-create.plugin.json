@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraNotificationPreferenceAftercreateNotificationPreferencesCreatePostoperation",
+  "displayName": "Pira · Notification Preference · After create — Notification Preferences · Create · Post-operation",
+  "description": "Phase 3. People only create their own preferences; one row per person.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_notificationpreference",
+    "message": "Create",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_notificationpreference",
+    "systemuser"
+  ],
+  "formula": "With(\n    { saved: LookUp(wd_notificationpreference, wd_notificationpreferenceid = NewRecord.wd_notificationpreferenceid) },\n    If(\n        saved.wd_User.systemuserid <> saved.createdby.systemuserid,\n            Error({ Kind: ErrorKind.Validation, Message: \"[PERMISSION_DENIED] You can only set your own notification preferences.\" }),\n        CountRows(Filter(wd_notificationpreference, wd_User.systemuserid = saved.wd_User.systemuserid)) > 1,\n            Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] You already have notification preferences. Change those instead.\" })\n    )\n)"
+}

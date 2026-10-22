@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraCustomFieldAfterupdateCustomFieldsUpdatePostoperation",
+  "displayName": "Pira · Custom Field · After update — Custom Fields · Update · Post-operation",
+  "description": "Phase 3. Leads only; project and field type can't change; name unique; single choice needs options.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_customfield",
+    "message": "Update",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_customfield",
+    "wd_projectmember",
+    "wd_project",
+    "systemuser"
+  ],
+  "formula": "// Phase 3. A field's type never changes once values may exist (retire it and add a new one instead).\nWith(\n    { saved: LookUp(wd_customfield, wd_customfieldid = NewRecord.wd_customfieldid) },\n    If(\n        NewRecord.wd_Project.wd_projectid <> OldRecord.wd_Project.wd_projectid || NewRecord.wd_fieldtype <> OldRecord.wd_fieldtype,\n            Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] A custom field's project and type can't change.\" }),\n        IsBlank(Trim(saved.wd_name)) ||\n            (saved.wd_fieldtype = wd_customfield_new_wd_customfield_wd_fieldtype.'100000004' && IsBlank(Trim(saved.wd_options))),\n            Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] Fields need a name, and single choice fields need options.\" }),\n        CountRows(Filter(Filter(wd_customfield, wd_Project.wd_projectid = saved.wd_Project.wd_projectid),\n            Lower(Trim(wd_name)) = Lower(Trim(saved.wd_name)))) > 1,\n            Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] Another field in this project already uses that name.\" }),\n        IsBlank(LookUp(wd_projectmember,\n            wd_Project.wd_projectid = saved.wd_Project.wd_projectid &&\n            wd_User.systemuserid = saved.modifiedby.systemuserid &&\n            wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000' &&\n            wd_projectrole = wd_projectmember_new_wd_projectmember_wd_projectrole.'100000000')),\n            Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only project leads can change custom fields.\" })\n    )\n)"
+}

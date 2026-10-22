@@ -1,0 +1,12 @@
+{
+  "name": "pira",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pira - Jira-inspired work management Code App on Dataverse (Phases 1-5).",
+  "type": "module",
+  "scripts": {
+    "test": "node --test --experimental-test-module-mocks \"agent/tests/*.test.mjs\"",
+    "check": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');const files=['dist/index.js','dist/config/app-config.js',...fs.readdirSync('dist/js').filter(f=>f.endsWith('.js')).map(f=>'dist/js/'+f),...fs.readdirSync('dist/js/ui').map(f=>'dist/js/ui/'+f),'agent/dev/mock-data-service.js'];for(const f of files){cp.execFileSync(process.execPath,['--input-type=module','--check'],{input:fs.readFileSync(f)});}console.log('Syntax OK: '+files.length+' modules');\"",
+    "dev": "node agent/dev/serve.mjs"
+  }
+}

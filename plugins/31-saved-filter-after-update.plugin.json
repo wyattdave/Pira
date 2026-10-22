@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraSavedFilterAfterupdateSavedFiltersUpdatePostoperation",
+  "displayName": "Pira · Saved Filter · After update — Saved Filters · Update · Post-operation",
+  "description": "Phase 3. The project can't change.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_savedfilter",
+    "message": "Update",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_savedfilter",
+    "wd_project"
+  ],
+  "formula": "// Write and Delete are User-level in the security role, so only the owner gets this far.\nIf(\n    NewRecord.wd_Project.wd_projectid <> OldRecord.wd_Project.wd_projectid,\n        Error({ Kind: ErrorKind.Validation, Message: \"[VALIDATION_FAILED] A saved filter can't move to another project.\" })\n)"
+}

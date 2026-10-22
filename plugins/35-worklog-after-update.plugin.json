@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "dv-native.plugin/v1",
+  "kind": "automated",
+  "uniqueName": "wd_PiraWorkLogAfterupdateWorkLogsUpdatePostoperation",
+  "displayName": "Pira · Work Log · After update — Work Logs · Update · Post-operation",
+  "description": "Phase 4. Author edits/voids, leads void; voided logs locked; recalculates Time Spent; history.",
+  "solution": {
+    "uniqueName": "PiraPlugins",
+    "displayName": "Pira-plugins",
+    "version": "1.0.0.0",
+    "publisher": {
+      "uniqueName": "WyattDave",
+      "displayName": "WyattDave",
+      "prefix": "wd",
+      "optionValuePrefix": 12765
+    }
+  },
+  "trigger": {
+    "table": "wd_worklog",
+    "message": "Update",
+    "stage": "postOperation"
+  },
+  "tables": [
+    "wd_worklog",
+    "wd_issue",
+    "wd_project",
+    "wd_projectmember",
+    "wd_issuehistory",
+    "systemuser"
+  ],
+  "formula": "// Phase 4. Work logs are never deleted. The author may edit or void their own log; a project lead may void (only void) anyone's.\n// Voided logs are locked. Time Spent is recalculated and the change is written to history in the same transaction.\nWith(\n    { saved: LookUp(wd_worklog, wd_worklogid = NewRecord.wd_worklogid) },\n    With(\n        {\n            thisIssue: LookUp(wd_issue, wd_issueid = OldRecord.wd_Issue.wd_issueid),\n            m: saved.wd_minutes,\n            om: OldRecord.wd_minutes,\n            voiding: saved.wd_voided = wd_worklog_new_wd_worklog_wd_voided.'1',\n            member: LookUp(wd_projectmember,\n                wd_Project.wd_projectid = OldRecord.wd_Project.wd_projectid &&\n                wd_User.systemuserid = saved.modifiedby.systemuserid &&\n                wd_membershipstate = wd_projectmember_new_wd_projectmember_wd_membershipstate.'100000000' &&\n                wd_projectrole <> wd_projectmember_new_wd_projectmember_wd_projectrole.'100000002')\n        },\n        If(\n            NewRecord.wd_Issue.wd_issueid <> OldRecord.wd_Issue.wd_issueid || NewRecord.wd_Project.wd_projectid <> OldRecord.wd_Project.wd_projectid,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_WORK_LOG] A work log can't move to another issue.\" }),\n            OldRecord.wd_voided = wd_worklog_new_wd_worklog_wd_voided.'1',\n                Error({ Kind: ErrorKind.Validation, Message: \"[WORK_LOG_LOCKED] Voided work logs can't be changed.\" }),\n            thisIssue.wd_archived = wd_issue_new_wd_issue_wd_archived.'1',\n                Error({ Kind: ErrorKind.Validation, Message: \"[ISSUE_ARCHIVED] \" & thisIssue.wd_issuekey & \" is archived and read-only.\" }),\n            IsBlank(member),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only leads and contributors can change work logs.\" }),\n            saved.modifiedby.systemuserid <> saved.createdby.systemuserid &&\n                !(voiding && member.wd_projectrole = wd_projectmember_new_wd_projectmember_wd_projectrole.'100000000' && m = om &&\n                    saved.wd_workdate = OldRecord.wd_workdate && Coalesce(saved.wd_workcomment, \"\") = Coalesce(OldRecord.wd_workcomment, \"\")),\n                Error({ Kind: ErrorKind.Validation, Message: \"[PROJECT_ACCESS_DENIED] Only the person who logged the work can change it; project leads can void it.\" }),\n            voiding && IsBlank(Trim(saved.wd_voidreason)),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_WORK_LOG] Give a reason for voiding the work log.\" }),\n            IsBlank(m) || m < 1 || m > 1440,\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_WORK_LOG] Log between 1m and 24h per entry.\" }),\n            IsBlank(saved.wd_workdate) || (saved.wd_workdate <> OldRecord.wd_workdate &&\n                (saved.wd_workdate > DateAdd(Today(), 1, TimeUnit.Days) || saved.wd_workdate < DateAdd(Today(), -366, TimeUnit.Days))),\n                Error({ Kind: ErrorKind.Validation, Message: \"[INVALID_WORK_LOG] The work date must be within the last year and not in the future.\" }),\n            Patch(wd_issue, thisIssue, { wd_timespent: Sum(Filter(wd_worklog, wd_Issue.wd_issueid = thisIssue.wd_issueid &&\n                wd_voided <> wd_worklog_new_wd_worklog_wd_voided.'1'), wd_minutes) });\n            With(\n                {\n                    oldText: Coalesce(Trim(If(om >= 2400, Int(om / 2400) & \"w \") & If(Mod(om, 2400) >= 480, Int(Mod(om, 2400) / 480) & \"d \") &\n                        If(Mod(om, 480) >= 60, Int(Mod(om, 480) / 60) & \"h \") & If(Mod(om, 60) > 0, Mod(om, 60) & \"m\")), \"0m\") & \" on \" & Text(OldRecord.wd_workdate, \"d mmm yyyy\"),\n                    newText: Coalesce(Trim(If(m >= 2400, Int(m / 2400) & \"w \") & If(Mod(m, 2400) >= 480, Int(Mod(m, 2400) / 480) & \"d \") &\n                        If(Mod(m, 480) >= 60, Int(Mod(m, 480) / 60) & \"h \") & If(Mod(m, 60) > 0, Mod(m, 60) & \"m\")), \"0m\") & \" on \" & Text(saved.wd_workdate, \"d mmm yyyy\")\n                },\n                Collect(wd_issuehistory, {\n                    wd_name: Left(thisIssue.wd_issuekey & \" worklog\", 100), wd_Issue: thisIssue,\n                    wd_eventtype: wd_issuehistory_new_wd_issuehistory_wd_eventtype.'100000001', wd_fieldname: \"worklog\", wd_oldvalue: Left(oldText, 400),\n                    wd_newvalue: Left(If(voiding, \"Voided: \" & saved.wd_voidreason, newText), 400),\n                    wd_operationname: If(voiding, \"VoidWorkLog\", \"EditWorkLog\")\n                })\n            )\n        )\n    )\n)"
+}
