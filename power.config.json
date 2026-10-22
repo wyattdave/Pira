@@ -1,8 +1,7 @@
 {
-  "appId": "392fc358-83a0-4a44-8c62-ab4e56943fed",
   "appDisplayName": "Pira",
   "description": "Pira - a Jira-inspired work management app (projects, issues, Kanban) backed by Dataverse.",
-  "environmentId": "9b45eff8-d905-e28a-918f-2e315619890d",
+  "environmentId": "<ENVIRONMENTID>",
   "buildPath": "./dist",
   "buildEntryPoint": "index.html",
   "logoPath": "./dist/icon-512.png",
