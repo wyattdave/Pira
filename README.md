@@ -1,127 +1,137 @@
-# Dataverse Work Management App — Codex Handoff
+# Pira
 
-A phased implementation brief for a Jira-inspired Power Apps Code App backed by Dataverse. This is a pragmatic work-management product, not a Jira clone or a promise of Jira API compatibility.
+**Jira-inspired work management, built on Microsoft Power Platform.**
 
-## Documents
+Pira is a Power Apps Code App for managing projects, issues and agile delivery, with Dataverse as its source of truth. It brings boards, backlogs, sprints, team collaboration and release tracking into one app, with Power Platform solution visibility alongside the work.
 
-1. `phase-1-foundation-issue-tracker.md` — projects, membership, issues, comments, history, My Work and basic Kanban.
-2. `phase-2-agile-delivery.md` — backlog, sprints, epics, story points, relationships and dashboards.
-3. `phase-3-team-productivity.md` — notifications, attachments, bulk edits, configurable workflows and custom fields.
-4. `phase-4-advanced-capabilities.md` — automation, time tracking, release management, advanced query and analytics.
-5. `server-side-dataverse.md` — plug-ins, Custom APIs, transaction boundaries, key generation, validation and deployment guidance.
-6. `security-roles.md` — recommended Dataverse roles, project-level access approach and security tests.
-7. `dataverse-schema-erd.md` — logical table schema, relationships and Mermaid ERD.
+The app is built with **CodeAppJS**, using plain HTML, CSS and JavaScript ES modules rather than React or a frontend build pipeline.
 
-## Instructions for Codex
+- **How it was built:** [Read the blog post](https://dev.to/wyattdave/pira-creating-my-own-jira-in-code-apps-2gd4) 
+- **Framework:** [CodeAppJS Docs](https://codeappjs.com/)
+- **Server-side plug-in tooling:** [Dataverse-Plugins-Native](https://github.com/wyattdave/Dataverse-Plugins-Native)
 
-- Read this README and the relevant phase document before changing code.
-- Inspect the existing repository and its current Code Apps setup first. Preserve its established conventions and do not replace working scaffolding without a reason.
-- Implement one phase at a time. Do not silently start later phases.
-- Before implementation, report the current architecture, assumptions, dependencies and proposed files to change.
-- Use TypeScript with strict typing. Keep UI, domain logic and Dataverse data access separated.
-- Use the supported Power Apps Code Apps / Dataverse integration already configured in the repository. Do not invent unsupported SDK calls or assume that ordinary browser code can bypass Dataverse security.
-- Use the logical names and choices in `dataverse-schema-erd.md` as proposed names; inspect solution conventions and reconcile prefixes before creating metadata.
-- Treat the schema as a logical baseline. Confirm column types, relationship cascade behavior, ownership model, auditing and environment limits before deployment.
-- Never enforce security only in the UI. Dataverse privileges and server-side validation must enforce access and invariants.
-- Never generate issue keys in the browser with `CountRows`, `MAX + 1`, timestamps alone, or client-side counters.
-- Add tests for domain logic, permissions, concurrency and failure paths. Include manual test steps for Code App UI behavior.
-- Do not commit secrets, environment-specific URLs, tenant IDs or connection credentials.
-- Keep deployments solution-aware and environment-variable driven. Document any manual Dataverse configuration.
+## What the app does
 
-## Product principles
+### Projects and issue tracking
 
-- Prioritise everyday issue tracking and Kanban before broad Jira parity.
-- Dataverse is the source of truth.
-- Issue keys are readable identifiers; Dataverse GUIDs remain the primary internal identifiers.
-- Prefer simple, explicit workflows over a general-purpose workflow designer in the first release.
-- Keep optional Power Automate and Power BI integrations out of the critical path for core CRUD and workflow integrity.
-- Design for paging, selective column retrieval and server-side filtering from the start.
+- Create projects with Kanban, Scrum or bug-tracking workflow templates.
+- Manage project membership with lead, contributor and stakeholder roles.
+- Track epics, stories, tasks and bugs with readable issue keys, priorities, assignees, due dates and labels.
+- Organise work into an **Epic > Story > Task/Bug** hierarchy, with issue relationships and dependency views.
+- Use Your Work, project issue lists, global search and issue deep links to find work quickly.
+- Add comments, mentions and attachments, and review issue history.
+- Switch between dark and light themes.
 
----
+### Agile delivery
 
-# Pira — Phases 1–5 implementation
+- Plan and rank work in the backlog.
+- Use Kanban and Scrum boards, with multiple boards per project.
+- Estimate with story points and manage the sprint lifecycle.
+- Review sprint outcomes, epic progress and project dashboards.
+- Configure project workflows, allowed transitions and required fields.
 
-Pira is a Power Apps Code App (plain HTML/CSS/ES modules, no build step) on Dataverse. Look and feel: Jira-style shell, single electric-cyan accent on charcoal, with a light mode (toggle in the top bar, remembered in localStorage).
+### Team productivity
 
-Phase 2 adds backlog and sprint planning, scrum boards, sprint reports, story points, epics/child progress, issue links, a basic dashboard, multiple boards per project, Entra ID people search (Office 365 Users) and explicit Save / Discard for issue edits. Manual tests and migration notes: [docs/phase-2-manual-test.md](docs/phase-2-manual-test.md).
+- Save personal or project-shared filters.
+- Bulk-edit issues with a preview and per-issue results.
+- Define project custom fields: text, number, date, yes/no and single choice.
+- Receive in-app notifications for assignments, mentions and other work updates.
+- Configure notification preferences, with optional email and Teams delivery through Power Automate.
+- Search for people through the Office 365 Users connector.
 
-Phase 3 adds per-project workflows (8 statuses, allowed transitions, required fields such as a resolution when moving to Done), project templates (Kanban, Scrum, Bug tracking), saved filters (private or shared with the project), bulk edit with preview and per-issue results, attachments (Dataverse file column), in-app notifications with preferences and an optional email/Teams flow, and custom fields (text, number, date, yes/no, single choice). Manual tests and migration notes: [docs/phase-3-manual-test.md](docs/phase-3-manual-test.md); optional flow: [docs/notification-flow.md](docs/notification-flow.md).
+### Releases, reporting and Power Platform integration
 
-Phase 4 adds the approved advanced capabilities, each behind a feature flag (`FEATURES` in `app-config.js`): time tracking (estimates, work logs that are voided rather than deleted, Time Spent derived by plug-ins), releases and versions (fix version, release with unfinished-issue handling, release calendar), an advanced query builder (allowlisted fields and operators, AND/OR groups, translated to OData and filtered by Dataverse as the user), reports (lead/cycle time, throughput, overdue trend, sprint outcomes, estimate accuracy), CSV export and import with a dry run, and a dependency graph. Automation rules weren't approved and aren't built. Design notes and analytics definitions: [docs/phase-4-design.md](docs/phase-4-design.md); manual tests and migration notes: [docs/phase-4-manual-test.md](docs/phase-4-manual-test.md).
+- Track estimates, remaining effort and work logs.
+- Manage versions, fix versions, releases and a release calendar.
+- Build advanced queries with a visual query builder.
+- View lead/cycle time, throughput, overdue work, sprint outcomes and estimate accuracy.
+- Export issues to CSV and import new issues with a dry-run preview.
+- Visualise dependencies between issues.
+- Link an epic to a Power Platform solution in **Dev, Test, Stage and Prod**.
+- View live solution versions and modified dates, and open linked solutions in the maker portal.
+- Record a solution version on a story and compare it with the solution linked to its parent epic.
 
-Phase 5 links Power Platform solutions to epics: per epic, one solution for each of Dev, Test, Stage and Prod, chosen with a searchable environment picker (Power Platform for Admins V2, *Retrieve a list of environments*) and then a searchable solution picker (Dataverse connector, `solutions` table in that environment). Choosing an environment auto-selects the solution with the same SchemaName as the nearest linked stage. Each stage shows the live version and modified date and links to the solution in make.powerapps.com. Stories get a *Solution version* field and a Dev/Test/Stage/Prod check that shows the stage's version and whether it matches. Feature flag `FEATURES.powerPlatform`. Manual tests and migration notes: [docs/phase-5-manual-test.md](docs/phase-5-manual-test.md).
+## Architecture overview
 
-## Structure
+Pira separates the user interface, reusable domain rules and data access. Power Apps provides the managed host and signed-in user context; Dataverse stores the application data and runs the server-side rules.
 
-```text
-power.config.json            Code App manifest (app name, environment, Dataverse data sources)
-dist/                        Deployed as-is
-  index.html                 Shell + theme CSS (all markup inside #root)
-  index.js                   Boot, router, sidebar, global search, shortcuts
-  codeapp.js, power-apps-data.js   Code App SDK (do not edit)
-  connectors/office365users.js     Office 365 Users connector wrapper (from codeapp-js; do not edit)
-  connectors/powerplatformadminv2.js, connectors/commondataserviceforapps.js   Phase 5 connector wrappers (generated by CAP; do not edit)
-  config/app-config.js       Tables, choice values, workflow, templates, sprint lifecycle, link types, notification events, feature flags, query allowlist, limits
-  config/dataverse-tables.json     Schema plan used to create the wd_ tables with CAP
-  config/decision-log.md     Decisions, constraints and change log
-  js/domain.js               Pure rules: keys, validation, workflows, ranking, sprints, hierarchy, links, custom fields, filters, bulk plans, notifications, attachments, OData filters, durations, versions, queries, analytics, CSV, dependency graphs
-  js/data-service.js         All Dataverse + connector access (paged, filtered, selected server-side)
-  js/ui/*.js                 Board, backlog, sprints, issue panel, create issue, lists, bulk edit, notifications, projects/overview, settings (workflow, custom fields), releases, query builder, CSV, reports, dependencies, epic solutions / version check, dialogs, pickers, DOM helpers
-agent/                       Not deployed
-  mockup-*.html              Design mockups (mockup 1 chosen)
-  dev/mock-data-service.js   In-memory twin of data-service.js for local UI work
-  dev/serve.mjs              Local static server
-  tests/*.test.mjs           Node test suites
-docs/phase-1-manual-test.md  Manual/hosted test script (Phase 1)
-docs/phase-2-manual-test.md  Manual/hosted test script + migration notes (Phase 2)
-docs/phase-3-manual-test.md  Manual/hosted test script + migration notes, custom-field limits, attachment storage (Phase 3)
-docs/notification-flow.md    Optional Power Automate email/Teams delivery (Phase 3)
-docs/phase-4-design.md       Design notes per Phase 4 capability, analytics definitions, Power BI guidance
-docs/phase-4-manual-test.md  Manual/hosted test script + migration notes (Phase 4)
-docs/phase-5-manual-test.md  Manual/hosted test script + migration notes (Phase 5)
-plugins/                     Low-code plug-in formulas and dv-native specs (Phase 3 changes, Phase 4 and Phase 5)
+```mermaid
+flowchart TD
+    User["Signed-in user"] --> Host["Power Apps host"]
+    Host --> UI["Pira UI<br/>HTML, CSS and JavaScript ES modules"]
+    UI --> Domain["Domain rules<br/>Validation, workflows, ranking and reporting"]
+    UI --> Service["Data service"]
+    Service --> SDK["CodeAppJS / Power Apps data SDK"]
+    SDK --> DV["Dataverse<br/>Projects, issues, sprints and related records"]
+    SDK --> Connectors["Power Platform connectors"]
+    Connectors --> People["Office 365 Users<br/>People search"]
+    Connectors --> Solutions["Power Platform for Admins V2 + Dataverse<br/>Environment and solution lookup"]
+    DV --> Plugins["Automated low-code plug-ins<br/>Power Fx validation, keys and history"]
+    DV -.-> Flow["Optional Power Automate flow<br/>Email / Teams notifications"]
 ```
 
-## Run locally
+### Application layers
 
-```powershell
-npm run dev     # http://127.0.0.1:5178/dist/index.html?mock
-npm test        # domain + service + mock-parity tests (Node 22, no dependencies)
-npm run check   # syntax-check every module
-```
+| Layer | Responsibility | Location |
+| --- | --- | --- |
+| App shell | Startup, navigation, routing, global search and theme | [dist/index.html](dist/index.html), [dist/index.js](dist/index.js) |
+| UI modules | Boards, backlog, issue panel, project settings, reports and other views | [dist/js/ui](dist/js/ui) |
+| Domain logic | Reusable validation, workflow rules, ranking, query translation and calculations | [dist/js/domain.js](dist/js/domain.js) |
+| Data service | Dataverse and connector access, including server-side filtering, selected columns and paging | [dist/js/data-service.js](dist/js/data-service.js) |
+| Runtime and connectors | CodeAppJS helpers, Power Apps SDK and connector wrappers | [dist/codeapp.js](dist/codeapp.js), [dist/power-apps-data.js](dist/power-apps-data.js), [dist/connectors](dist/connectors) |
+| Configuration | Table mappings, choices, workflow templates, feature flags and app manifest | [dist/config/app-config.js](dist/config/app-config.js), [power.config.json](power.config.json) |
+| Server-side rules | Power Fx formulas and deployment specifications for low-code plug-ins | [plugins](plugins), [plug-in guide](docs/lowcode-plugins.md) |
 
-`?mock` only works on localhost; it swaps in `agent/dev/mock-data-service.js`. Without it the app needs the Power Apps host.
+The [dist](dist) directory is deployed as-is; there is no frontend compilation step. The data model contains **23 custom Dataverse tables**, plus the standard User table. See the [schema and ERD](docs/dataverse-schema-erd.md) for the relationships.
 
-## Dataverse setup (environment: Platform-Tools, publisher `wyattdave`, prefix `wd`)
+### Server-side behaviour
 
-1. ✅ Tables created and published (2026-10-15) from `dist/config/dataverse-tables.json` with the CAP `createDataverseTable` API, one at a time in dependency order. The CAP sequence often needs one retry about 60 seconds after a 400 "not found in the MetadataCache" error, because the new table's metadata is still propagating. Phase 2 tables (Sprint, Board Issue, Issue Link) and Issue columns (Story Points, Sprint) were added the same way. Phase 3 (2026-10-16) added seven tables, Issue Resolution, three Project workflow columns, and four *Status* options on Issue and Board Column (via `InsertOptionValue`, since CAP skips existing columns). Phase 4 (2026-10-21) added Version and Work Log, and five Issue columns (estimates, Time Spent, Fix Version, Started On). Phase 5 (2026-10-21) added Epic Solution and the Issue *Solution Version* column.
-2. ✅ Registered in `power.config.json → databaseReferences` (23 `wd_` tables + `systemusers`) plus the **Office 365 Users**, **Power Platform for Admins V2** and **Microsoft Dataverse** connection references; schemas in `dist/config/*.Schema.json`. `npm test` checks that `TABLES` in `app-config.js` matches both.
-3. ⏳ Manual: security role **Pira User** (incl. the Phase 2–5 tables, some at User level; no Delete on Work Log or Epic Solution), eleven alternate keys, solution membership. Full privilege matrix and steps are in [docs/dataverse-setup.md](docs/dataverse-setup.md).
-4. ✅ Platform-Tools: the thirty-nine automated **low-code plug-ins** (Power Fx) are deployed with dv-native into *Pira-plugins* and enabled (Phase 3–5 sources in `plugins/`). Other environments: [docs/lowcode-plugins.md](docs/lowcode-plugins.md). Upgrading from Phase 4: add 37–39.
-5. ⏳ Deploy: `CAP deploy`; users approve the Office 365 Users, Power Platform for Admins V2 and Dataverse connections on first launch.
-6. Optional: the email/Teams notification flow ([docs/notification-flow.md](docs/notification-flow.md)).
+The default configuration is `SERVER_LOGIC = 'lowcode'`. Dataverse automated low-code plug-ins enforce record-level rules such as issue key allocation, valid workflow transitions, project membership checks, immutable fields and issue history. The browser also validates early to give users useful feedback, but it is not the security boundary.
 
-## Server-side logic
+Use **[Dataverse-Plugins-Native](https://github.com/wyattdave/Dataverse-Plugins-Native)** to check and deploy the low-code plug-ins. Pira's [plug-in guide](docs/lowcode-plugins.md) describes the rules, deployment steps and limitations. These are Power Fx low-code plug-ins, not C# assemblies.
 
-`SERVER_LOGIC` in `dist/config/app-config.js` chooses where the authoritative rules run:
+Optional Power Automate delivery is outside the critical path for core issue updates. The solution integration reads environment and solution information as the signed-in user; it does not deploy solutions between stages.
 
-- `'lowcode'` (default): Dataverse automated low-code plug-ins allocate issue keys, validate transitions against each project's workflow (including required fields), membership, immutable keys, custom field values, notifications, attachments and the last-lead rule, and write issue history inside the same transaction. The app keeps only early validation, ranking and label history.
-- `'client'`: fallback that does the same work in the browser, with no server enforcement. Use it only while the plug-ins aren't installed.
+## Getting started
 
-## Known limitations (Phases 1–5)
+Pira needs a Power Platform environment with Dataverse, access to Power Apps Code Apps and appropriate permissions to configure tables, security roles, connections and plug-ins.
 
-- Low-code plug-ins are a Microsoft **preview** feature.
-- Plug-ins only run on writes, so per-project **read** access isn't enforced server-side (needs owner teams or sharing). See [docs/lowcode-plugins.md](docs/lowcode-plugins.md#limits-to-know-about).
-- Reporter, comment author and history "changed by" use Dataverse's server-stamped `createdby`.
-- Workflows choose from a fixed catalogue of eight statuses (To Do, In Progress, In Review, Done, Backlog, Blocked, In Testing, Closed); new status names need a new choice value. A blank project workflow means the Phase 1/2 default (any move). Saving a workflow is several writes (transitions, project, board columns); saving again finishes a partly failed save.
-- Bulk edit is up to 50 issues, one write each (not atomic); results show exactly which issues failed, and **Retry** repeats only those.
-- Notifications are polled (every 2 minutes and when the tab regains focus), not pushed. Email/Teams needs the optional flow.
-- Custom fields: five types, no formulas, multi-select, user/lookup fields, defaults or required custom fields; not searchable or filterable yet. Attachments: 10 MB per file, 20 per issue, in Dataverse file storage.
-- Order is one base-36 fractional rank per project (`wd_rank`), shared by the backlog, sprints and every board. Moves are ranked from the neighbours' current server values.
-- Hierarchy is Epic → Story → Task/Bug. Phase 1 parent links that break it are kept but must be fixed before their parent/type can change.
-- Sprint completion is several writes (issues, then sprint); a retry finishes a partly failed completion.
-- Boards are project-scoped; the default board shows every issue, extra boards show only issues added to them.
-- Phase 4: one fix version per issue (no affected versions). Releasing a version is several writes (issues, then version); releasing again finishes it. The advanced query is a visual builder, not JQL. Reports read up to 2,000 issues per query and the overdue trend uses today's due dates (no snapshots). CSV import is up to 200 issues per file and doesn't import status, comments or custom fields. The dependency graph shows up to 150 issues plus 50 outside the scope. Issues created before Phase 4 have no Started On until they next move, so early cycle-time figures cover fewer issues.
-- Phase 5: one solution per epic and stage (four fixed stages). Environments and versions are read live as the signed-in user, so people without access to an environment see why instead of a version; the stored version is only a snapshot from when it was linked. The solution picker shows the first 50 matches by name (type more to narrow). Only stories carry a solution version; the check compares the saved value with the parent epic's solution in the chosen stage.
+1. **Review the Code Apps workflow.** Follow the [CodeAppJS Docs](https://codeappjs.com/) for app setup, hosting and publishing.
+2. **Prepare Dataverse.** Follow the [Dataverse setup guide](docs/dataverse-setup.md) to provision the tables and columns, configure alternate keys and assign the Pira User security role. The [table definitions](dist/config/dataverse-tables.json) and [schema overview](docs/dataverse-schema-erd.md) describe the data model.
+3. **Deploy the plug-ins before using the app.** Use [Dataverse-Plugins-Native](https://github.com/wyattdave/Dataverse-Plugins-Native) with the sources in [plugins](plugins), following the [Pira plug-in guide](docs/lowcode-plugins.md).
+4. **Configure the app for your environment.** Replace `<ENVIRONMENTID>` in [power.config.json](power.config.json), verify the Dataverse mappings and configure the Office 365 Users, Power Platform for Admins V2 and Microsoft Dataverse connections.
+5. **Publish and share the Code App.** Deploy the [dist](dist) directory using the CodeAppJS publishing workflow. Users need the relevant Dataverse privileges and connector access, and may be prompted to approve connections.
+6. **Optionally enable email/Teams notifications.** Follow the [notification flow guide](docs/notification-flow.md).
+7. **Walk through the acceptance checks.** Use the manual test guides below to validate the app in your environment.
 
-See `docs/phase-1-manual-test.md` to `docs/phase-5-manual-test.md` for the acceptance walkthroughs.
+Advanced capabilities can be switched on or off with `FEATURES` in [app-config.js](dist/config/app-config.js).
+
+## Important limitations
+
+- **Preview dependency:** automated low-code plug-ins are documented as a Microsoft preview feature in the setup notes. Check Microsoft's current support status and suitability before relying on them for production workloads.
+- **Read access:** project membership checks on writes do not provide project-level read isolation. With the documented organisation-wide Read privileges, UI filtering is not a security boundary; isolated projects need an appropriate Dataverse owner-team or sharing design.
+- **Client fallback:** `SERVER_LOGIC = 'client'` exists for development/setup scenarios, but does not provide server-side enforcement.
+- **Multi-record operations:** bulk edits, workflow saves, sprint completion and releases are not single atomic transactions. Review partial failures and retry as directed by the app.
+- **Bounded operations:** bulk edits support up to 50 issues; CSV imports up to 200 issues; attachments up to 10 MB each and 20 per issue.
+- **Scope:** the advanced query builder is not JQL, and Pira does not promise Jira API compatibility. General-purpose automation rules are not implemented.
+- **Notifications:** in-app notifications are polled rather than pushed; email and Teams require the optional flow.
+
+## Documentation
+
+| Guide | Contents |
+| --- | --- |
+| [Dataverse setup](docs/dataverse-setup.md) | Tables, keys, privileges and manual configuration |
+| [Data model and ERD](docs/dataverse-schema-erd.md) | Table definitions and relationships |
+| [Low-code plug-ins](docs/lowcode-plugins.md) | Current server-side implementation and deployment |
+| [Security design](docs/security-roles.md) | Role recommendations and access considerations |
+| [Notification flow](docs/notification-flow.md) | Optional email and Teams delivery |
+| [Advanced capability design](docs/phase-4-design.md) | Reporting definitions and advanced feature decisions |
+| [Phase 1 checks](docs/phase-1-manual-test.md) | Core projects, issues and boards |
+| [Phase 2 checks](docs/phase-2-manual-test.md) | Agile delivery |
+| [Phase 3 checks](docs/phase-3-manual-test.md) | Team productivity |
+| [Phase 4 checks](docs/phase-4-manual-test.md) | Advanced capabilities |
+| [Phase 5 checks](docs/phase-5-manual-test.md) | Power Platform solution integration |
+
+## License
+
+[MIT](LICENSE).
